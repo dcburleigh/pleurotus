@@ -299,8 +299,17 @@ class GProject:
         
         if errors: 
             print  "ERROR: " + "\n".join(errors) 
-            return 
+            #return 
         
+        self.repo_log(since='puths')
+        for r in self.repo_list: 
+            if len(r.commits) > 0:
+                errors.append( str(len(r.commits)) + " commits not pushed to remote in repo " + r.name)
+                
+        if errors: 
+            print  "ERROR: " + "\n".join(errors) 
+            return 
+                        
         return 1
     def lookup_tags(self, all=False):
         """ populate  the list of tagged commits for each repo in this project 
