@@ -294,6 +294,8 @@ class GProject:
             if len(ufiles) > 0:
                 errors.append( str(len(ufiles)) + " uncommitted files in repo " + r.name)
                 print "\n".join(ufiles)
+                for f in ufiles:
+                    print("file: '%s'"  % (f) )
         
         if errors: 
             print  "ERROR: " + "\n".join(errors) 
