@@ -293,6 +293,7 @@ class GProject:
             ufiles = r.get_status()
             if len(ufiles) > 0:
                 errors.append( str(len(ufiles)) + " uncommitted files in repo " + r.name)
+                print "\n".join(ufiles)
         
         if errors: 
             print  "ERROR: " + "\n".join(errors) 
