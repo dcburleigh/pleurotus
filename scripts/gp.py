@@ -93,7 +93,24 @@ def show_log(project_name, since=None):
         else:     
             print( "    %s\n    %s " % ( r.commits[0], r.commits[-1]))
 
+
+def verify_release(project_name):
+    global plist 
     
+    plist.read() 
+    
+    gp = plist.get_project(project_name);
+    if not gp:
+        print "no such project"
+        return 
+    rv = gp.verify_release()
+    if not rv:
+        print "not ready"
+        return 
+    
+    print "OK!"
+    
+  
 def show_status(project_name ):
     global plist 
     
@@ -125,7 +142,10 @@ def show_tags(project_name ):
     #gp.project_tags(project_name, True);
     gp.lookup_tags();
     for r in gp.repo_list: 
-        print("%s: " %  (r.dir) ) 
+        print(">Repo: %s  (%s): " %  (r.name, r.dir) ) 
+        if len(r.tags) == 0:
+            print "    No releases"
+            
         for d in sorted(r.tags, reverse=True): 
             if r.tags[d] == gp.last_tag:
                 st = '*'
@@ -199,7 +219,7 @@ def main():
     repo_name = None 
 
     try:
-        opts,args = getopt.getopt(sys.argv[1:], 'fip:tlsva:', ['test', 'list', 'since=', 'last', 'depends='])
+        opts,args = getopt.getopt(sys.argv[1:], 'fip:tlsva:', ['verify', 'test', 'list', 'since=', 'last', 'depends='])
     except getopt.GetoptError as err:
         raise Exception("invalid arguments " + str(err) )
 
@@ -215,6 +235,9 @@ def main():
         elif o == '--depends':
             action = 'repo_depends'
             repo_name = a 
+        elif o == '--verify':
+            action = 'verify' 
+            
         elif o == '-t':
             action = 'show_tags'
         elif o == '-i':
@@ -245,7 +268,6 @@ def main():
 
   
     plist = ProjectList(repo=repo_root, wiki=wiki_url)
-    print ( "%d projects " % ( plist.num() ))
     
     if action == 'list_projects':
         list_all()
@@ -266,8 +288,8 @@ def main():
         show_log(project_name, since=since);
     elif action == 'archive':
         archive_release(project_name );
-    elif action == 'test1':
-        test1()
+    elif action == 'verify':
+        verify_release(project_name)
     else: 
         print("ERROR: invalid action: %s" % ( action ) )
     

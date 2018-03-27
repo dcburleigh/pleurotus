@@ -162,9 +162,9 @@ class GProject:
         v = rfh.read()
         rfh.close()
         v  = re.sub('\s+$', '', v)  # trim
-        self.set_release(v) 
+        self.set_release_version(v) 
         
-    def set_release(self, v):
+    def set_release_version(self, v):
         """ set the value of curernt release version
         
         v is a decimal (float)
@@ -224,7 +224,6 @@ class GProject:
         if self.release:
             return self.release
         else:
-            ###self.set_release()
             return '???'
     
     def set_archive_dir(self, dir):
@@ -287,7 +286,18 @@ class GProject:
         for r in self.repo_list: 
             r.get_status()
         
+    
+    def verify_release(self):
+        errors = []
+        for r in self.repo_list:
+            ufiles = r.get_status()
+            if len(ufiles) > 0:
+                errors.append( str(len(ufiles)) + " uncommitted files in repo " + r.name)
         
+        if errors: 
+            print  "ERROR: " + "\n".join(errors) 
+            return 
+    
     def lookup_tags(self, all=False):
         """ populate  the list of tagged commits for each repo in this project 
         by default, get the release tags (containing the tag prefix )
