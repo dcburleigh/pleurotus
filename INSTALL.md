@@ -22,3 +22,9 @@ make install-gp
 edit gp_init.py 
 * see gp_init.example.py 
 
+## verify
+
+make gp-doc
+
+python example.py 
+
