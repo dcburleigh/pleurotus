@@ -16,6 +16,7 @@ Usage:
 
 import re
 import subprocess
+from test.warning_tests import outer
 
 class Repo: 
 
@@ -49,6 +50,10 @@ class Repo:
     
     def git_command_rows(self, command):
         out = self.git_command(command)
+        out = re.sub('\s+$', '', out) 
+        print( "'%s'  " % out )
+        if not out:
+            return []
         return out.split("\n")
     
     def git_command(self, git_args):
