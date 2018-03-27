@@ -251,7 +251,7 @@ class GProject:
             if u:
                 print "Warning: %d uncommitted files in %s " % ( len(u), r.dir)
             
-            f = os.path.join( self.archive_dir,  r.name)
+            f = os.path.join( self.archive_dir,  r.name + '.txt')
             if os.path.exists(f):
                 print "over-writing '%s'" % f 
            
