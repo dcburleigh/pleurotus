@@ -230,15 +230,19 @@ class GProject:
         if not os.path.exists(dir):
             print "no such directory '%s' " % (dir)
             return 
-        d = os.path.join(dir, self.code, self.release)
-        if not os.path.exists(d):
-            os.mkdir( d ) 
-        self.archive_dir = d 
+        
+        for part in [ self.code, self.release]:
+            dir = os.path.join(dir, part)
+            #print dir 
+            if not os.path.exists(dir):
+                os.mkdir( dir ) 
+                
+        self.archive_dir = dir
         
     def archive_release(self):
         """ save all commit logs for this release """ 
         
-        print "save to " + self.archive_dir 
+        #print "save to " + self.archive_dir 
         #return 
         self.repo_log('release') 
 
@@ -269,14 +273,21 @@ class GProject:
             args += ' origin/develop.. '
         elif since == 'release':
             # TODO: verify each repo has tag
-            print "since: ", self.last_tag 
+            
             if self.last_tag:
                 args = ' ' + self.last_tag + '.. '
             else:
                 args = ' master.. '
         
-        
         for r in self.repo_list: 
+            if since == 'release':
+                r.get_tags() 
+                if len(r.tags) == 0:
+                    args = ' master..' 
+                else: 
+                    args = ' ' + self.last_tag + '.. '
+                print "since: ", self.last_tag 
+                    
             r.get_log(args) 
             
         
@@ -293,9 +304,8 @@ class GProject:
             ufiles = r.get_status()
             if len(ufiles) > 0:
                 errors.append( str(len(ufiles)) + " uncommitted files in repo " + r.name)
-                print "\n".join(ufiles)
-                for f in ufiles:
-                    print("file: '%s'"  % (f) )
+                #print "\n".join(ufiles)
+
         
         if errors: 
             print  "ERROR: " + "\n".join(errors) 

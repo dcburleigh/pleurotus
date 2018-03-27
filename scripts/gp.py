@@ -183,6 +183,8 @@ def archive_release(name):
         return 
     
     gp.set_archive_dir( archive_root ) 
+    #print( "root=%s  dir=%s" % ( archive_root,  gp.archive_dir) )
+    #return 
     gp.archive_release()
     
 
@@ -219,7 +221,7 @@ def main():
     repo_name = None 
 
     try:
-        opts,args = getopt.getopt(sys.argv[1:], 'fip:tlsva:', ['verify', 'test', 'list', 'since=', 'last', 'depends='])
+        opts,args = getopt.getopt(sys.argv[1:], 'fip:tlsva', ['verify', 'test', 'list', 'since=', 'last', 'depends='])
     except getopt.GetoptError as err:
         raise Exception("invalid arguments " + str(err) )
 

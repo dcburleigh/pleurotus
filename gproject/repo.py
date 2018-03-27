@@ -50,7 +50,7 @@ class Repo:
     
     def git_command_rows(self, command):
         out = self.git_command(command)
-        out = re.sub('\s+$', '', out) 
+        out = re.sub('\s+$', '', out)  
         #print( "'%s'  " % out )
         if not out:
             return []
@@ -90,8 +90,11 @@ class Repo:
         
     def get_tags(self, all=False):
         
-        pattern = re.compile('^(.+)\s+\(tag:\s+([^\,\)]+)', re.I)
-        pattern = re.compile('^(\S+)\s+\(.*tag:\s+(' + self.tag_prefix + '[^\,\)]+)', re.I)
+        if all:
+            pattern = re.compile('^(.+)\s+\(tag:\s+([^\,\)]+)', re.I)
+        else:
+            pattern = re.compile('^(\S+)\s+\(.*tag:\s+(' + self.tag_prefix + '[^\,\)]+)', re.I)
+        
         command =  'log --tags --simplify-by-decoration --date=short --pretty="format:%cd %d" '
 
         rows = self.git_command_rows(command)
