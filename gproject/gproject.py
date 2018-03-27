@@ -300,7 +300,8 @@ class GProject:
         if errors: 
             print  "ERROR: " + "\n".join(errors) 
             return 
-    
+        
+        return 1
     def lookup_tags(self, all=False):
         """ populate  the list of tagged commits for each repo in this project 
         by default, get the release tags (containing the tag prefix )
