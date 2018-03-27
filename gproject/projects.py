@@ -57,7 +57,7 @@ class ProjectList:
 
         n = 0
         cols = {}
-        print ("read: " + self.pfile) 
+        #print ("read: " + self.pfile) 
         with open(self.pfile, 'rb') as csvfile:
             freader  = csv.reader(csvfile, delimiter="\t", quotechar='|')
             for row in freader:

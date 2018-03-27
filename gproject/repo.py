@@ -52,8 +52,8 @@ class Repo:
         out = self.git_command(command)
         out = re.sub('\s+$', '', out) 
         #print( "'%s'  " % out )
-        #if not out:
-        #    return []
+        if not out:
+            return []
         return out.split("\n")
     
     def git_command(self, git_args):
