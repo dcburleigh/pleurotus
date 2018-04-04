@@ -14,91 +14,91 @@ import os.path
 import re
 import csv
 #import subprocess
-from .repo import Repo 
+from .repo import Repo
 
 class GProject:
-    """ represent a project 
+    """ represent a project
     built from one or more git repos.
-    
+
     :name: Name
     :code: abbreviationg
-    :prefix:  each commit for a release should be of the form <prefix><version> 
-    :build_path:  local directory where code is deployed 
-    :rel_path: path from primary repo to directory containing the release file 
-    :release: current version of the release in development 
-    :last_release: version of the previous (stable, master) release 
-    :next_tag: tag for the commit(s) when the current version is released 
-    
-    """ 
+    :prefix:  each commit for a release should be of the form <prefix><version>
+    :build_path:  local directory where code is deployed
+    :rel_path: path from primary repo to directory containing the release file
+    :release: current version of the release in development
+    :last_release: version of the previous (stable, master) release
+    :next_tag: tag for the commit(s) when the current version is released
+
+    """
 
     #wiki_url = None
-    #archive_root = None 
-    
+    #archive_root = None
+
     def __init__(self, name, code=None, repo=None, wiki=None):
-        self.verbose = False 
-        
-        self.name = name 
-    
+        self.verbose = False
+
+        self.name = name
+
         # primary repo
-        self.repo_dir = '' 
+        self.repo_dir = ''
         # related
-        self.repo_list = [] 
+        self.repo_list = []
         self.project_tags = {}
-    
-        self.release = None 
-        self.rel_path = None 
+
+        self.release = None
+        self.rel_path = None
         self.release_file = None
-    
-        self.wiki_url = '' 
+
+        self.wiki_url = ''
         self.wiki_page = ''
-        self.wiki_page_url = '' 
-    
-        self.prefix = None 
-        self.build_dir = None 
+        self.wiki_page_url = ''
+
+        self.prefix = None
+        self.build_dir = None
         self.build_target = None  # target in makefile; not used?
-    
-        self.relnotes_page = None 
-        self.relnotes_url = None 
-        self.last_tag = None 
-        self.next_tag = None 
-    
-        if code: 
-            self.code = code 
-            self.prefix = code 
-        
+
+        self.relnotes_page = None
+        self.relnotes_url = None
+        self.last_tag = None
+        self.next_tag = None
+
+        if code:
+            self.code = code
+            self.prefix = code
+
         if repo:
-            self.repo_dir = repo 
-        
-        if wiki: 
-            self.wiki_url = wiki 
-    
+            self.repo_dir = repo
+
+        if wiki:
+            self.wiki_url = wiki
+
 
     def set_wiki_pages(self, page_name=None, wiki_url=None ):
         """
          set the URL for the Wiki pages for the project,
         and latest release notes;
-        Not all projects has wiki pages 
+        Not all projects has wiki pages
         """
-        
+
         if wiki_url:
-            self.wiki_url = wiki_url 
-        
-        if page_name: 
+            self.wiki_url = wiki_url
+
+        if page_name:
             if page_name == '-':
-                self.wiki_page = self.name 
+                self.wiki_page = self.name
             else:
-                self.wiki_page = page_name 
-      
+                self.wiki_page = page_name
+
         if not self.wiki_page:
             print "no page name"
             return
-        
+
         self.wiki_page_url  = self.wiki_url + '/' + self.wiki_page
-        
-        if not self.release: 
+
+        if not self.release:
             print "release not defined"
             return
-        
+
         self.relnotes_page = self.wiki_page + '/Release/' + self.release
         if not self.wiki_url:
             print "ERROR no wiki url"
@@ -107,197 +107,249 @@ class GProject:
 
     def set_primary_repo(self, repo=None):
         if repo:
-            self.repo_dir = repo 
-        
-        r = Repo(self.repo_dir, self.prefix) 
-        self.repo_list.append(r) 
-            
+            self.repo_dir = repo
+
+        r = Repo(self.repo_dir, self.prefix)
+        self.repo_list.append(r)
+
         self.set_release_file();
         self.read_release()
-    
+
     def add_repo(self, repo):
         if not os.path.exists(repo):
             print('ERROR no such repo ' + repo )
-            return 
-        
-        r = Repo(repo, self.prefix) 
-        self.repo_list.append(r) 
-        
+            return
+
+        r = Repo(repo, self.prefix)
+        self.repo_list.append(r)
+
     def set_release_file(self):
         """ find the releast file for this project;
         read it if it exists
-        """ 
-        
+        """
+
         if not self.repo_dir:
             print "no repo"
             return
-    
+
         f =  self.repo_dir
         if not os.path.exists(f):
             print ("no such directory '%s' " % ( f ) )
             return
-        
+
         if self.rel_path:
             f = os.path.join(f, self.rel_path)
 
         if not os.path.exists(f):
             print ("no such directory '%s' " % ( f ) )
             return
-        
+
         f = os.path.join(f, 'release.txt')
         if not os.path.exists(f):
             if self.verbose:
                 print ("no such file: %s" % ( f))
             return
-        
-        self.release_file = f 
-        
+
+        self.release_file = f
+
     def read_release(self):
-        """ read the release file and set the release version """ 
+        """ read the release file and set the release version """
 
         if not self.release_file:
-            return 
-        
+            return
+
         rfh = open(self.release_file, 'r')
         v = rfh.read()
         rfh.close()
         v  = re.sub('\s+$', '', v)  # trim
-        self.set_release_version(v) 
-        
+        self.set_release_version(v)
+
     def set_release_version(self, v):
         """ set the value of curernt release version
-        
+
         v is a decimal (float)
-        
-        current project is assumed in the develop branch 
+
+        current project is assumed in the develop branch
         """
-        
+
         self.release = v
         vf = float(v)
-        
-        # previous release (assumed: in master) 
+
+        # previous release (assumed: in master)
         last_vf = vf - 0.1
         self.last_release = str(last_vf)
         #print name, "v=", v, "last=", vf
 
         if not self.prefix:
             print "no prefix defined, cant' set tags"
-            return 
-        
+            return
+
         self.next_tag = self.prefix + v
         self.last_tag = "%s%s" % ( self.prefix, last_vf)
-        
-        
-    def show(self):
+
+
+    def show(self, since=None, format='all'):
         """ display most details about this project """
-        
-        print ( "Project: %s [ %s ] " % ( self.name, self.code))
-        print ( "tag prefix: %s " % ( self.prefix))
-        
+
+        print ( "Project: %s [ %s ]  [tag: %s] " % ( self.name, self.code, self.prefix))
+        #print ( "tag prefix: %s " % ( self.prefix))
+
         print ("    Current release: %s"  % ( self.current_release() ))
+        if format == 'brief':
+            return
+
         if self.next_tag:
-            t = self.next_tag 
-        else: 
+            t = self.next_tag
+        else:
             t = '???'
         print ( "    beta: %s " % ( t ))
-        
-        if self.repo_dir:
-            print ( "Git repo: \n    Primary %s" % ( self.repo_dir) )
+
+        if self.last_tag:
+            t = self.last_tag
         else:
-            print ( "No repo defined")
-        
+            t = '???'
+        print ( "    Last release: %s " % ( t ))
+
+        if since:
+            self.repo_log(since)
+
+        print ("Git repos(s)")
+        nr = 0
+        for r in self.repo_list:
+            nr += 1
+            print( " %-12s: %s " % ( r.name, r.dir))
+            r.list_commits()
+
+        if nr == 0:
+            print("    -NONE- ")
+
+
         if self.wiki_page_url:
             wp = self.wiki_page_url
-        else: 
+        else:
             wp ='n/a'
-        
-        if self.relnotes_page: 
+
+        if self.relnotes_page:
             rp = self.relnotes_page
-        else: 
-            rp = 'n/a' 
-        
+        else:
+            rp = 'n/a'
+
         print ( "Wiki page: %s \n    release notes: %s " % ( wp, rp ))
-    
+
     def current_release(self):
-        """ return the release version """ 
-        
+        """ return the release version """
+
         if self.release:
             return self.release
         else:
             return '???'
-    
+
     def set_archive_dir(self, dir):
         if not os.path.exists(dir):
             print "no such directory '%s' " % (dir)
-            return 
-        
+            return
+
         for part in [ self.code, self.release]:
             dir = os.path.join(dir, part)
-            #print dir 
+            #print dir
             if not os.path.exists(dir):
-                os.mkdir( dir ) 
-                
+                os.mkdir( dir )
+
         self.archive_dir = dir
-        
+
     def archive_release(self):
-        """ save all commit logs for this release """ 
-        
-        #print "save to " + self.archive_dir 
-        #return 
-        self.repo_log('release') 
+        """ save all commit logs for this release """
+
+        #print "save to " + self.archive_dir
+        #return
+        self.repo_log('release', 'files')
 
         for r in self.repo_list:
-            u = r.get_status() 
+            u = r.get_status()
             if u:
                 print "Warning: %d uncommitted files in %s " % ( len(u), r.dir)
-            
+
             f = os.path.join( self.archive_dir,  r.name + '.txt')
             if os.path.exists(f):
-                print "over-writing '%s'" % f 
-           
+                print "over-writing '%s'" % f
+
             lfh = open(f, 'w')
             if not lfh:
                 raise Exception("cannot open " + f)
             lfh.write( "\n".join(r.commits) )
-            print "wrote: ",f 
+            print "wrote: ",f
             lfh.close()
-       
-        
-    def repo_log(self, since=None):
-        """ get commits logs since ... """ 
-        
-        args = '';        
+
+        # filter_commits()
+
+        f = os.path.join( self.archive_dir,  'mantis' + '.txt')
+        fh = open(f, 'w')
+        if not fh:
+            raise Exception("cannot opne " + f)
+
+        filter = re.compile('.*mantis\s*(\d+)', re.I)
+        issues = {}
+        for r in self.repo_list:
+            fh.write("%s \n" % ( r.name) )
+            print("%s: %d commits" % ( r.name,  len(r.commits)) )
+            for c in r.commits:
+                m = filter.match(c)
+                if not m:
+                    #print("no match " + c)
+                    continue
+
+                #print "match: ", m.group(1)
+                if not m.group(1) in issues:
+                    issues[ m.group(1) ] = []
+                issues[m.group(1) ].append( r.name + '; ' + c)
+                #fh.write("  " + c + " \n")
+
+        for m in sorted(issues):
+            fh.write("  %s\n" % ( m ))
+            for c in issues[m]:
+                fh.write("     " + c + "\n")
+        print("wrote: %s" % ( f ))
+
+
+    def repo_log(self, since=None, format=None):
+        """ get commits logs since ...
+
+        :since; [ master | push | release ]
+        :format: ?
+        """
+
+        args = '';
         if since == 'master':
             args = ' master.. '
-        elif since == 'push': 
+        elif since == 'push':
             args += ' origin/develop.. '
         elif since == 'release':
             # TODO: verify each repo has tag
-            
+
             if self.last_tag:
                 args = ' ' + self.last_tag + '.. '
             else:
                 args = ' master.. '
-        
-        for r in self.repo_list: 
+
+        for r in self.repo_list:
             if since == 'release':
-                r.get_tags() 
+                r.get_tags()
                 if len(r.tags) == 0:
-                    args = ' master..' 
-                else: 
+                    args = ' master..'
+                else:
                     args = ' ' + self.last_tag + '.. '
-                print "since: ", self.last_tag 
-                    
-            r.get_log(args) 
-            
-        
+                ###print "since: ", self.last_tag
+
+            r.get_log(args, format)
+
+
     def repo_status(self):
-        """ get the current status of each repo """ 
-        
-        for r in self.repo_list: 
+        """ get the current status of each repo """
+
+        for r in self.repo_list:
             r.get_status()
-        
-    
+
+
     def verify_release(self):
         errors = []
         for r in self.repo_list:
@@ -306,36 +358,48 @@ class GProject:
                 errors.append( str(len(ufiles)) + " uncommitted files in repo " + r.name)
                 #print "\n".join(ufiles)
 
-        
-        if errors: 
-            print  "ERROR: " + "\n".join(errors) 
-            #return 
-        
-        self.repo_log(since='puths')
-        for r in self.repo_list: 
+
+        #if errors:
+        #    print  "ERROR: " + "\n".join(errors)
+        #    #return
+
+        self.repo_log(since='push')
+        for r in self.repo_list:
             if len(r.commits) > 0:
                 errors.append( str(len(r.commits)) + " commits not pushed to remote in repo " + r.name)
-                
-        if errors: 
-            print  "ERROR: " + "\n".join(errors) 
-            return 
-                        
+
+        #if errors:
+        #    print  "ERROR: " + "\n".join(errors)
+        #    return
+
+        self.lookup_tags()
+        for r in self.repo_list:
+            print("tags " + "\n". join(r.tags.values() ))
+            if self.next_tag in r.tags.values() :
+                errors.append( '%s is already tagged ' % ( r.name))
+
+            if not self.last_tag in r.tags.values():
+                errors.append('%s is missing last tag, %s ' % ( r.name, self.last_tag) )
+
+        if errors:
+            print  "ERROR: " + "\n".join(errors)
+            return
+
         return 1
+
     def lookup_tags(self, all=False):
-        """ populate  the list of tagged commits for each repo in this project 
+        """ populate  the list of tagged commits for each repo in this project
         by default, get the release tags (containing the tag prefix )
-        
+
         :all boolean if True, get any tag for the repos
-        """ 
-        
+        """
+
         self.tags = {}
         for r in self.repo_list:
-            r.get_tags() 
+            r.get_tags()
             #print("%s tags in %s " % ( len(r.tags), r.dir) )
             for d in r.tags:
                 t = r.tags[d]
-                if not t in self.tags: 
+                if not t in self.tags:
                     self.tags[t] = []
-                self.tags[t].append( r.dir + "; " + d) 
-            
-                    
+                self.tags[t].append( r.dir + "; " + d)
