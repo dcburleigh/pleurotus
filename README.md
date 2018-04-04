@@ -7,10 +7,19 @@ My projects usually are built from more than one git repo.
 
 This tool provides a handy interface to them.
 
-### Use case
+Releases are tagged, with tags of the form <prefix><version>
+where <prefix> is an abbrevation of the project name, 
+and <version> is the release version.
+
+## Use case
 
 project MyProject is built from 2 repos: myproject, mylib.
 
-Releases are tagged, with tags of the form <prefix><version>.
+Another project, ProjectX, is build from 2 repos:  projectx, mylib.
 
+
+### Commit a release 
+
+
+### Commit secondary repo 
 

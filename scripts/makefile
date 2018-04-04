@@ -26,6 +26,11 @@ update-gp:
 
 install-gp: gproject  update-gp $(GPSCRIPTS) $(CONFIG) 
 
+# ................................................................
+list-versions: install-gp
+	python gp.py --list -v 
+
+
 gp-doc: update-gp 
 	pydoc gp 
 	pydoc gproject
