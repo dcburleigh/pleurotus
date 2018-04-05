@@ -218,14 +218,10 @@ def show_repo(repo_name):
     print out
 
 
-def archive_release(name):
+def archive_release():
     global plist
-    #plist.read()
-    if name in plist.projects:
-        gp = plist.projects[name]
-    else:
-        print( "ERROR: no such project: %s " % ( name ))
-        return
+
+    gp = plist.get_project()
 
     gp.show()
 
@@ -440,7 +436,7 @@ def main():
     elif action == 'show_log':
         show_log(project_name, since=since);
     elif action == 'archive':
-        archive_release(project_name );
+        archive_release( );
     elif action == 'verify':
         verify_release(project_name)
     elif action == 'tag-release':
