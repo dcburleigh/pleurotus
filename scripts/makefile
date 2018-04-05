@@ -18,7 +18,7 @@ CONFIG = projects.tsv gp_init.py
 CONFIG = projects.yml gp_init.py
 
 # main script
-GPSCRIPTS = gp.py makefile  example.py projects.exampl.yml
+GPSCRIPTS = gp.py makefile  example.py projects.example.yml
 
 $(GPSCRIPTS): %: $(GPSOURCE)/scripts/%
 	cp $< $@
