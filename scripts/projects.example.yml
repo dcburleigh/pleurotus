@@ -1,0 +1,18 @@
+archive_root: /data/git_logs
+repo_root: /data/git
+wiki_root: https://example.com/wiki/index.php
+projects:
+  - name: MyProject
+    code: mp
+    wikipage: _
+    repos:
+      - name: my_project
+        primary: 1
+      - name: my_lib
+      - name: webroot
+  - name: AnotherProject
+    code: ap
+    repos:
+        - name: another_project
+          primary: 1
+          release_path: scripts

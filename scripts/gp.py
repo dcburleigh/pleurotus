@@ -76,7 +76,7 @@ import getopt
 from gproject.gproject import GProject
 from gproject.projects import ProjectList
 
-from gp_init import repo_root, archive_root, wiki_url
+#from gp_init import repo_root, archive_root, wiki_url
 
 plist = None
 gp = None
@@ -84,9 +84,9 @@ gp = None
 def show_log(project_name, since=None, summary=True ):
     global plist
 
-    plist.read()
+    #plist.read()
 
-    gp = plist.get_project(project_name);
+    gp = plist.get_project();
     if not gp:
         print "no such project"
         return
@@ -200,7 +200,7 @@ def show_tags(project_name ):
 def show_project(name):
     global plist
     #plist = ProjectList(repo=repo_root, wiki=wiki_url)
-    plist.read()
+    #plist.read()
     if name in plist.projects:
         gp = plist.projects[name]
     else:
@@ -220,7 +220,7 @@ def show_repo(repo_name):
 
 def archive_release(name):
     global plist
-    plist.read()
+    #plist.read()
     if name in plist.projects:
         gp = plist.projects[name]
     else:
@@ -229,7 +229,7 @@ def archive_release(name):
 
     gp.show()
 
-    gp.set_archive_dir( archive_root )
+    gp.set_archive_dir( plist.archive_root )
     #print( "root=%s  dir=%s" % ( archive_root,  gp.archive_dir) )
     #return
     gp.archive_release()
@@ -243,7 +243,7 @@ def verify_repo(repo_name):
     plist.read()
 
     max_repo_commits = 10
-    max_repo_ufiles = 2 
+    max_repo_ufiles = 2
     ###r = repo( repo_name);
 
     waiting_on_projects = []
@@ -330,8 +330,12 @@ def show_repo_projects( repo_name):
 def list_all(format='full'):
     global plist
 
-    plist.read()
-    if format == 'flull':
+    #plist.read()
+    if not plist.num():
+        print "No projects defined"
+        return
+
+    if format == 'full':
         plist.list()
     else:
         for name in plist.projects:
@@ -343,9 +347,11 @@ def main():
     action = None
     since = None
     repo_name = None
+    manifest = None
+    project_name = None
 
     try:
-        opts,args = getopt.getopt(sys.argv[1:], 'fip:tlsvar:', ['tag-release', 'verify=', 'test', 'list', 'since=', 'last', 'depends='])
+        opts,args = getopt.getopt(sys.argv[1:], 'fip:tlsvar:', ['manifest=', 'tag-release', 'verify=', 'test', 'list', 'since=', 'last', 'depends='])
     except getopt.GetoptError as err:
         raise Exception("invalid arguments " + str(err) )
 
@@ -354,6 +360,8 @@ def main():
             project_name = a
         elif o == '-r':
             repo_name = a
+        elif o == '--manifest':
+            manifest = a
 
         elif o == '-a':
             action = 'archive'
@@ -402,15 +410,21 @@ def main():
         else:
             print "invalid argument: ", o
 
+    #plist = ProjectList( repo=repo_root, wiki=wiki_url)
 
-    plist = ProjectList(repo=repo_root, wiki=wiki_url)
+    #print("TEsTING m=" + manifest + " archive=" + plist.archive_root )
+    #return
+    plist = ProjectList(manifest, select_project=project_name)
 
     if action == 'list_projects':
+        #plist = ProjectList(manifest)
         list_all()
     elif action == 'list_versions':
+        #plist = ProjectList(manifest)
         list_all('versions')
 
     elif action == 'repo_depends':
+        #plist = ProjectList(manifest)
         show_repo_projects( repo_name )
     elif action == 'verify-repo':
         verify_repo(repo_name)
@@ -420,13 +434,10 @@ def main():
     elif action == 'show_info':
         show_project(project_name);
     elif action == 'show_tags':
-
         show_tags(project_name);
     elif action == 'show_status':
-
         show_status(project_name);
     elif action == 'show_log':
-
         show_log(project_name, since=since);
     elif action == 'archive':
         archive_release(project_name );

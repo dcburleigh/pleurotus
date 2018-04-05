@@ -22,6 +22,9 @@ import os.path
 import re
 import csv
 import subprocess
+#import yaml
+from ruamel.yaml import YAML
+
 from .gproject import GProject
 from .repo import Repo
 
@@ -31,30 +34,120 @@ class ProjectList:
     repo_root = None
     wiki_url = None
     build_root = None
+    archive_root = None
 
-    def __init__(self, f=None, repo=None, wiki=None):
+    def __init__(self, f=None, repo=None, wiki=None, select_project=None):
 
         if repo:
             self.repo_root = repo
         if wiki:
             self.wiki_url = wiki
 
-        if f:
-            self.pfile = f
-            self.read()
+        if select_project:
+            #print "select " + select_project
+            self.select_project = select_project
+        else:
+            self.select_project = None
 
-    def read(self,f=None):
+        self.read(f)
+
+
+    def read(self, f=None):
+        ###print("f=" + f)
+
+        if not f:
+            return
+
+        if not os.path.exists(f):
+            print "ERROR no such file " + f
+            return
+
+        m = re.match('.*\.([a-z]+)$', f);
+        if not m:
+            print("ERRR no valid extension " + f)
+            return
+
+        ext = m.group(1)
+        ###print("ext " + ext)
+        if ext == 'tsv':
+            self.pfile = f
+            self.read_tsv()
+        elif ext == 'yml':
+            self.pfile = f
+            self.read_yaml()
+        else:
+            print("ERROR: invalid extension " + ext)
+        return
+
+    def read_yaml(self,f=None, project_name=None):
+        """ read the master list in YAML format """
+
+        if self.select_project:
+            project_name = self.select_project
+
+        n = 0
+        yaml=YAML(typ='safe')   # default, if not specfied, is 'rt' (round-trip)
+        with open(self.pfile) as fh:
+            text = fh.read()
+
+        #print("got: " + text)
+        cfg = yaml.load(text)
+        ###print cfg
+        if 'repo_root' in cfg:
+            self.repo_root = cfg['repo_root']
+
+        if 'wiki_root' in cfg:
+            self.wiki_url = cfg['wiki_root']
+
+        if 'archive_root' in cfg:
+            self.archive_root = cfg['archive_root']
+
+        if 'build_root' in cfg:
+            self.build_root = cfg['build_root']
+
+        for p in cfg['projects']:
+            if not p['name']:
+                print("ERROR no name in project " + p)
+                continue
+
+            if project_name != None and project_name != p['name']:
+                ###print "skip"
+                continue
+
+            if  'code' in p:
+                cfg['code']  = p['name'].lower()
+
+            gp = GProject(p['name'], p['code'], wiki=self.wiki_url )
+            if 'prefix' in p and p['prefix']:
+                gp.prefix = p['prefix']
+
+            if not 'repos' in p:
+                print( p['name'] + " no repos")
+                continue
+
+            for r in p['repos']:
+                #print("repo: ", r)
+
+                if 'name' in r:
+                    dir = os.path.join(self.repo_root, r['name'])
+                if 'release_path' in r:
+                    gp.rel_path = r['release_path']
+                if 'primary' in r:
+                    gp.set_primary_repo(dir)
+                    #print "v=" + gp.release
+                else:
+                    gp.add_repo(dir)
+
+            if 'wikipage' in p:
+                gp.set_wiki_pages( p['wikipage'])
+
+            self.projects[ gp.name] = gp
+
+
+    def read_tsv(self,f=None):
         """ read the master list of Git Projects"""
         if f:
             self.pfile = f
-
-        if not self.pfile:
-            print "pfile not defined"
-            return
-
-        if not os.path.exists(self.pfile):
-            print "no such file ", self.pfile
-            return
 
         n = 0
         cols = {}
@@ -145,12 +238,18 @@ class ProjectList:
                     repo = os.path.join( self.repo_root, row[k])
                     gp.add_repo(repo )
 
-    def get_project(self, name):
+    def get_project(self, name=None):
         """ return the specified GProject object """
+        if not name:
+            if not self.select_project:
+                print "no project specified"
+                return
+            name = self.select_project
+            
         if name in self.projects:
             return self.projects[name]
 
-        print( "%d project " % (len(self.projects)) )
+        print( "%d projects " % (len(self.projects)) )
 
         return None
 

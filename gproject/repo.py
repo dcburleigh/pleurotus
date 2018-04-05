@@ -51,9 +51,8 @@ class Repo:
             self.name = m.group(1)
             #print("got name: %s" % ( self.name))
 
+        self.is_primary = False
         self.commits = []
-
-
 
     def git_command_rows(self, command):
         out = self.git_command(command)

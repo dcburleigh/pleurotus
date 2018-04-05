@@ -84,7 +84,7 @@ class GProject:
             self.wiki_url = wiki_url
 
         if page_name:
-            if page_name == '-':
+            if page_name == '-' or page_name == '_':
                 self.wiki_page = self.name
             else:
                 self.wiki_page = page_name
@@ -96,7 +96,7 @@ class GProject:
         self.wiki_page_url  = self.wiki_url + '/' + self.wiki_page
 
         if not self.release:
-            print "release not defined"
+            print self.name + " - release not defined"
             return
 
         self.relnotes_page = self.wiki_page + '/Release/' + self.release
@@ -105,22 +105,22 @@ class GProject:
             return
         self.relnotes_url =  self.wiki_url + '/' + self.relnotes_page
 
-    def set_primary_repo(self, repo=None):
+    def set_primary_repo(self, repo=None, name=None):
         if repo:
             self.repo_dir = repo
 
-        r = Repo(self.repo_dir, self.prefix)
+        r = Repo(self.repo_dir, self.prefix,name=name)
         self.repo_list.append(r)
 
         self.set_release_file();
         self.read_release()
 
-    def add_repo(self, repo):
+    def add_repo(self, repo,name=None):
         if not os.path.exists(repo):
             print('ERROR no such repo ' + repo )
             return
 
-        r = Repo(repo, self.prefix)
+        r = Repo(repo, self.prefix,name=name)
         self.repo_list.append(r)
 
     def set_release_file(self):
