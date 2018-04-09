@@ -31,6 +31,12 @@ class Repo:
     dir_name_pattern  = re.compile('.*/([^\/]+)$')
     #dir_name_pattern  = re.compile('([a-z\-\_]+)$')
     #dir_name_pattern  = re.compile('.*/([^A-Z]+)$')
+
+    max_commits_primary = 0
+    max_commits_associated = 5
+    max_ufiles_primary = 0
+    max_ufiles_associated = 2
+
     def __init__(self, dir=None, prefix=None, name=None):
 
         self.tags = {}
@@ -123,6 +129,12 @@ class Repo:
         return self.git_command( 'show ' + commit + ' ' + self.show_format_brief)
         #return self.git_command( 'show ' + commit + ' -s  --pretty="format:%ci %d %h %b" ')
 
+    def taglist(self):
+        return sorted(self.tags.keys(), reverse=True)
+        #tlist = sorted(self.tags, key=self.tags.get)
+        #print "tlist", tlist
+        #return sorted(tlist)
+
     def get_tags(self, all=False):
         """ get commit tags
         by default, only get tags associated with a given project release,
@@ -131,26 +143,61 @@ class Repo:
         :all: boolean - if True, get all tags in this repo
 
         This method populates the 'tags' attribute,
-        a dict of   CommitDate => Tag
+        a dict of   Tag => CommitDate
 
         """
         if all:
-            pattern = re.compile('^(.+)\s+\(tag:\s+([^\,\)]+)', re.I)
+            #pattern = re.compile('^(.+)\s+\(tag:\s+([^\,\)]+)', re.I)
+            pattern = re.compile('.*tag:\s+([^\,\)]+)', re.I)
         else:
-            pattern = re.compile('^(\S+)\s+\(.*tag:\s+(' + self.tag_prefix + '[^\,\)]+)', re.I)
+            #pattern = re.compile('^(\S+)\s+\(.*tag:\s+(' + self.tag_prefix + '[^\,\)]+)', re.I)
+            pattern = re.compile('tag:\s+(' + self.tag_prefix + '[^\,\)]+)', re.I)
+            #pattern = re.compile('tag:\s+(' + self.tag_prefix + '[\d\.]+)', re.I)
 
+        # format: date tag
         command =  'log --tags --simplify-by-decoration --date=short --pretty="format:%cd %d" '
 
         rows = self.git_command_rows(command)
         nx = 0
         for row in rows:
-            m = pattern.search( row )
-            if m:
-                self.tags[ m.group(1)] = m.group(2)
-            else:
-                #print( "no match " + row )
-                nx += 1
+            cdate = row[:10]
+            for m in pattern.finditer(row):
+                #print "got:", m.groups()
+                t = m.group(1)
+                self.tags[t] = cdate
 
+
+
+    def is_ready(self, log_range):
+        """ check that the repo is ready for release
+        - no uncommitted files
+        - all files pushed to remote
+        """
+
+        ok = True
+        warnings = ''
+        ufiles = self.get_status()
+        nu = len(ufiles)
+        if nu:
+            print "Warning: %d uncommitted files in primary: %s " % ( nu, self.name )
+
+            if self.is_priamry:
+                if nu > self.max_ufiles_primary:
+                    ok  = False
+            else:
+                if nu > self.max_ufiles_associated:
+                    ok = False
+        self.get_log(log_range)
+        nr = len(self.commits)
+        if nr:
+            print("Warning: %d commits in repo since last release (%s)" % ( len(r.commits),  log_range))
+            if self.is_primary:
+                if nr > max_commits_primary:
+                    ok = False
+            else:
+                if nr > max_commits_associated:
+                    ok = False
+        return ok
 
     def add_tag(self, tag, message=None):
         """ tag the current commit in this repo """
