@@ -99,7 +99,12 @@ class GProject:
             print self.name + " - release not defined"
             return
 
+        # renotes_option
+        # 1)
         self.relnotes_page = self.wiki_page + '/Release/' + self.release
+        # 2)
+        self.relnotes_page = self.wiki_page + '/ReleaseNotes/' + self.release
+
         if not self.wiki_url:
             print "ERROR no wiki url"
             return
@@ -229,8 +234,8 @@ class GProject:
         else:
             wp ='n/a'
 
-        if self.relnotes_page:
-            rp = self.relnotes_page
+        if self.relnotes_url:
+            rp = self.relnotes_url
         else:
             rp = 'n/a'
 
@@ -334,11 +339,22 @@ class GProject:
         for r in self.repo_list:
             if since == 'release':
                 r.get_tags()
+                t = self.last_tag
                 if len(r.tags) == 0:
-                    args = ' master..'
+                    print "no tags"
+                    t = 'master'
                 else:
-                    args = ' ' + self.last_tag + '.. '
-                ###print "since: ", self.last_tag
+                    #print r.tags
+                    tlist = sorted(r.tags.keys())
+                    #print tlist
+                    if not self.last_tag in tlist:
+                        t = tlist[-1]
+                        print( "tag %s not found in repo %s, using %s " % ( self.last_tag, r.name, t))
+                    else:
+                        print "ok", t
+
+                args = ' ' + t + '.. '
+                print "since: ", self.last_tag, " args:", args
 
             r.get_log(args, format)
 
@@ -354,6 +370,7 @@ class GProject:
         errors = []
         for r in self.repo_list:
             ufiles = r.get_status()
+            # cutoff ( primary /not primary)
             if len(ufiles) > 0:
                 errors.append( str(len(ufiles)) + " uncommitted files in repo " + r.name)
                 #print "\n".join(ufiles)
@@ -365,6 +382,7 @@ class GProject:
 
         self.repo_log(since='push')
         for r in self.repo_list:
+            # cutoff ( primary /not primary)
             if len(r.commits) > 0:
                 errors.append( str(len(r.commits)) + " commits not pushed to remote in repo " + r.name)
 
@@ -374,12 +392,13 @@ class GProject:
 
         self.lookup_tags()
         for r in self.repo_list:
-            print("tags " + "\n". join(r.tags.values() ))
-            if self.next_tag in r.tags.values() :
+            #print("tags " + "\n". join(r.tags.keys() ))
+            if self.next_tag in r.tags.keys() :
                 errors.append( '%s is already tagged ' % ( r.name))
 
-            if not self.last_tag in r.tags.values():
-                errors.append('%s is missing last tag, %s ' % ( r.name, self.last_tag) )
+            if not self.last_tag in r.tags.keys():
+                #errors.append('%s is missing last tag, %s ' % ( r.name, self.last_tag) )
+                print('%s is missing last tag, %s ' % ( r.name, self.last_tag) )
 
         if errors:
             print  "ERROR: " + "\n".join(errors)
@@ -398,8 +417,11 @@ class GProject:
         for r in self.repo_list:
             r.get_tags()
             #print("%s tags in %s " % ( len(r.tags), r.dir) )
-            for d in r.tags:
-                t = r.tags[d]
+            for t in r.tags:
+                d = r.tags[t]
                 if not t in self.tags:
+                    ###print "add tag: ", t
                     self.tags[t] = []
                 self.tags[t].append( r.dir + "; " + d)
+
+        self.taglist = sorted( self.tags.keys(), reverse=True)
