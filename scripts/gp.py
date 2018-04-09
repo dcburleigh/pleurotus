@@ -166,8 +166,8 @@ def show_status(project_name ):
 def show_tags(project_name ):
     global plist
 
-    plist.read()
-    print ( "%d projects " % ( plist.num() ))
+    ###plist.read()
+    ###print ( "%d projects " % ( plist.num() ))
     gp = plist.get_project(project_name);
     if not gp:
         print "no such project"
@@ -179,31 +179,33 @@ def show_tags(project_name ):
     #gp.project_tags(project_name, True);
     gp.lookup_tags();
     for r in gp.repo_list:
-        print(">Repo: %s  (%s): " %  (r.name, r.dir) )
+        print("> %s: (%s): " %  (r.name, r.dir) )
         if len(r.tags) == 0:
             print "    No releases"
 
-        for d in sorted(r.tags, reverse=True):
-            if r.tags[d] == gp.last_tag:
+        for t in gp.taglist:
+            if t in r.tags:
+                d = r.tags[t]
+            else:
+                d = '-'
+            if t == gp.last_tag:
                 st = '*'
             else:
                 st = ' '
-            print( "   %s %s) %s" % ( st, d, r.tags[d]) )
+            print( "   %s %10s) %s" % ( st, d, t) )
 
 
     print "\nTag -> repo"
-    for t in gp.tags:
+    for t in gp.taglist:
         print( "%s: \n    %s" % ( t, "\n    ".join(gp.tags[t]) ) )
 
     return
 
 def show_project(name):
     global plist
-    #plist = ProjectList(repo=repo_root, wiki=wiki_url)
-    #plist.read()
-    if name in plist.projects:
-        gp = plist.projects[name]
-    else:
+
+    gp = plist.get_project(name);
+    if not gp:
         print( "ERROR: no such project: %s " % ( name ))
         return
 
@@ -214,8 +216,8 @@ def show_repo(repo_name):
     r = plist.init_repo(repo_name)
 
     print("Repo: %s"  % ( r.name) )
-    out = r.get_commit('deldevdb2.0');
-    print out
+    r.get_tags(True)
+    print "tags: ", r.tags
 
 
 def archive_release():
@@ -298,7 +300,7 @@ def verify_repo(repo_name):
 
 def show_repo_projects( repo_name):
     global plist
-    plist.read()
+    #plist.read()
 
     repo_projects = []
     for name in plist.projects:
@@ -312,11 +314,11 @@ def show_repo_projects( repo_name):
             is_tagged = ' '
             if gp.last_tag:
                 print("t=%s" % (gp.last_tag) )
-                if gp.last_tag in r.tags.values():
+                if gp.last_tag in r.tags.keys():
                     is_tagged = '*'
 
             print( "%-15s: current release:%s %s" % ( name, is_tagged, gp.release ))
-            print( "    tags: %s " % ", ".join( r.tags.values() ))
+            print( "    tags: %s " % ", ".join( r.tags.keys() ))
 
             repo_projects.append(r)
 
@@ -344,6 +346,7 @@ def main():
     since = None
     repo_name = None
     manifest = None
+    manifest = 'projects.yml'
     project_name = None
 
     try:

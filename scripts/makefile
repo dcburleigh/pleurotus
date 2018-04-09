@@ -54,13 +54,13 @@ show-log-rel: install-gp
 		cat t.out
 
 verify: install-gp
-	python gp.py -p $(P) --verify  release
+	python gp.py -p $(PROJECTNAME) --verify release --manifest $(MF)
 
 archive-release: install-gp
-	python gp.py -p $(P) -a   --manifest $(MF)
+	python gp.py -p $(PROJECTNAME) -a   --manifest $(MF)
 
 tag-release: install-gp
-	python gp.py -p $(P) --tag-release  --manifest $(MF)
+	python gp.py -p $(PROJECTNAME) --tag-release  --manifest $(MF)
 
 endif
 
