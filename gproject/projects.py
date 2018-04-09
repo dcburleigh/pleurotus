@@ -245,7 +245,7 @@ class ProjectList:
                 print "no project specified"
                 return
             name = self.select_project
-            
+
         if name in self.projects:
             return self.projects[name]
 
@@ -260,7 +260,6 @@ class ProjectList:
         """ display all the GProject objects """
 
         for name in self.projects:
-            #print "Project: ", name
             self.projects[name].show()
             print("\n")
 
