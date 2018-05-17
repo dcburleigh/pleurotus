@@ -132,11 +132,15 @@ class ProjectList:
                     dir = os.path.join(self.repo_root, r['name'])
                 if 'release_path' in r:
                     gp.rel_path = r['release_path']
+
+                tr = False
+                if 'tracking' in r:
+                    tr = True
                 if 'primary' in r:
                     gp.set_primary_repo(dir)
-                    #print "v=" + gp.release
+                    print "v=" + gp.release
                 else:
-                    gp.add_repo(dir)
+                    gp.add_repo(dir, tracking=tr)
 
             if 'wikipage' in p:
                 gp.set_wiki_pages( p['wikipage'])

@@ -1,6 +1,6 @@
 
 REPOROOT =
-ETC =
+ETC = /usr/local/etc/deldev
 
 -include makefile.conf
 

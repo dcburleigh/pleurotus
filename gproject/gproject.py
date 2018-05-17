@@ -115,17 +115,21 @@ class GProject:
             self.repo_dir = repo
 
         r = Repo(self.repo_dir, self.prefix,name=name)
+        r.is_primary = True
+
         self.repo_list.append(r)
 
         self.set_release_file();
         self.read_release()
 
-    def add_repo(self, repo,name=None):
+    def add_repo(self, repo,name=None, tracking=False ):
         if not os.path.exists(repo):
             print('ERROR no such repo ' + repo )
             return
 
         r = Repo(repo, self.prefix,name=name)
+        if tracking:
+            r.tracking = True
         self.repo_list.append(r)
 
     def set_release_file(self):
@@ -214,6 +218,7 @@ class GProject:
         else:
             t = '???'
         print ( "    Last release: %s " % ( t ))
+        print( "\n")
 
         if since:
             self.repo_log(since)
@@ -222,7 +227,12 @@ class GProject:
         nr = 0
         for r in self.repo_list:
             nr += 1
-            print( " %-12s: %s " % ( r.name, r.dir))
+            st = '.'
+            if r.is_primary:
+                st = 'P'
+            elif r.tracking:
+                st = 'T'
+            print( "%1s %-12s: %s " % (st, r.name, r.dir))
             r.list_commits()
 
         if nr == 0:
@@ -341,7 +351,8 @@ class GProject:
                 r.get_tags()
                 t = self.last_tag
                 if len(r.tags) == 0:
-                    print "no tags"
+                    if self.verbose:
+                        print "no tags"
                     t = 'master'
                 else:
                     #print r.tags
@@ -349,12 +360,12 @@ class GProject:
                     #print tlist
                     if not self.last_tag in tlist:
                         t = tlist[-1]
-                        print( "tag %s not found in repo %s, using %s " % ( self.last_tag, r.name, t))
-                    else:
-                        print "ok", t
+                        if self.verbose:
+                            print( "tag %s not found in repo %s, using %s " % ( self.last_tag, r.name, t))
 
                 args = ' ' + t + '.. '
-                print "since: ", self.last_tag, " args:", args
+                if self.verbose:
+                    print "since: ", self.last_tag, " args:", args
 
             r.get_log(args, format)
 
