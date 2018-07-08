@@ -17,8 +17,42 @@ project MyProject is built from 2 repos: myproject, mylib.
 
 Another project, ProjectX, is build from 2 repos:  projectx, mylib.
 
+## Configure
+
+Edit the YAML-formatted project configuration file, projects.yml.
+
+(see the example in scripts/projects.example.yml)
+
+### usage
+
+see: pydoc gp
+
 
 ### Commit a release
+
+* commit all changes in primary repo
+* commit ? changes in related repos
+* check
+python gp.py -p PROJECT -i
+
+* archive
+python gp.py -p PROJECT -a
+
+* tag
+python gp.py -p PROJECT --tag-release
+
+* next release
+cd GIT/project
+git merge develop
+
+git push
+git push --tags
+
+git checkout develop
+edit release.txt
+   increment version
+   
+
 
 
 ### Commit secondary repo

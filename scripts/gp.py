@@ -12,7 +12,10 @@ gp.py  [ --list | -v ]
 
    list all projects
 
-Archive Project
+** Archive Project
+
+gp.py --p <ProjectName> --tag-release
+
 
 gp.py -p <Project Name> -a  <archive options>
 
@@ -20,7 +23,7 @@ gp.py -p <Project Name> -a  <archive options>
     Archive options
     ?
 
-Project information
+** Project information
 
 gp.py -p <Project Name > <project options>
 
@@ -41,7 +44,7 @@ gp.py -d <Repo Name>   <repo options >
 
     Repo Options
 
-
+Verify Options
 
 Display Options
 
@@ -335,6 +338,8 @@ def list_all(format='full'):
 
     if format == 'full':
         plist.list()
+    elif format == 'tsv':
+        pass
     else:
         for name in plist.projects:
             gp = plist.get_project(name)

@@ -2,29 +2,30 @@
 
 * clone this repo into GIT/pleurotus
 
+* Python 2.y
+** module:  ruamel.yaml 
 
 
 ## build directory
 
-mkdir gp 
+mkdir gp
 
-cd gp 
+cd gp
 
 * list of projects
-edit  projects.tsv 
+edit  projects.tsv
 
 cp  GIT/pleurotus/scripts/makefile .
 
-edit makefile.conf 
+edit makefile.conf
 
-make install-gp 
+make install-gp
 
-edit gp_init.py 
-* see gp_init.example.py 
+edit gp_init.py
+* see gp_init.example.py
 
 ## verify
 
 make gp-doc
 
-python example.py 
-
+python example.py
