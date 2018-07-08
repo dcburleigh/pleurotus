@@ -16,7 +16,7 @@ Usage:
 
 import re
 import subprocess
-from test.warning_tests import outer
+###??? from test.warning_tests import outer
 
 class Repo:
 
@@ -52,7 +52,7 @@ class Repo:
             #re.match('/([^\/]+)$', dir)
             m = self.dir_name_pattern.match(dir)
             if not m:
-                print "ERROR no name in " + dir
+                print("ERROR no name in " + dir)
                 return
             self.name = m.group(1)
             #print("got name: %s" % ( self.name))
@@ -65,8 +65,8 @@ class Repo:
         out = self.git_command(command)
         if not out:
             return []
-        out = re.sub('\s+$', '', out)
-        #print( "'%s'  " % out )
+
+        out = re.sub('\s+$', '', out) # trim
         if not out:
             return []
         return out.split("\n")
@@ -77,7 +77,7 @@ class Repo:
         out = None
         serr = None
 
-        #print "try " + git_args
+        #print("try " + git_args)
         try:
             # to use shell = False,
             #  split into args
@@ -90,18 +90,20 @@ class Repo:
             return
 
         if serr:
-            #print "err:", serr
+            #print("err:", serr)
             self.last_error = serr
             return
 
-        return out
+        ####print("type={}".format(type(out)))
+        return out.decode() # as string
+        ###return out
 
     def list_commits(self, format='summary'):
         nc = len(self.commits)
         ###print( "%s: %s commits" % ( self.dir, nc ))
         if format == 'summary':
             if nc == 0:
-                print "    None "
+                print("    None ")
             elif nc == 1:
                 print( "    %s " % ( self.commits[0]))
             else:
@@ -133,7 +135,7 @@ class Repo:
     def taglist(self):
         return sorted(self.tags.keys(), reverse=True)
         #tlist = sorted(self.tags, key=self.tags.get)
-        #print "tlist", tlist
+        #print("tlist", tlist)
         #return sorted(tlist)
 
     def get_tags(self, all=False):
@@ -163,7 +165,7 @@ class Repo:
         for row in rows:
             cdate = row[:10]
             for m in pattern.finditer(row):
-                #print "got:", m.groups()
+                #print("got:", m.groups())
                 t = m.group(1)
                 self.tags[t] = cdate
 
@@ -180,7 +182,7 @@ class Repo:
         ufiles = self.get_status()
         nu = len(ufiles)
         if nu:
-            print "Warning: %d uncommitted files in primary: %s " % ( nu, self.name )
+            print("Warning: %d uncommitted files in primary: %s " % ( nu, self.name ))
 
             if self.is_priamry:
                 if nu > self.max_ufiles_primary:
@@ -208,4 +210,4 @@ class Repo:
             command += ' -m ' + message
 
         out = self.git_command( command )
-        print "got: ", out
+        print("got: ", out)

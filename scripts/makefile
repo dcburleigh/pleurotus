@@ -4,7 +4,6 @@ ETC = /usr/local/etc/deldev
 
 -include makefile.conf
 
-
 # ................................................................
 
 GPSOURCE = $(REPOROOT)/pleurotus
@@ -15,7 +14,11 @@ gproject:
 # configuration files
 MF = projects.yml
 CONFIG = projects.tsv gp_init.py
-CONFIG = projects.yml gp_init.py
+CONFIG = $(MF) gp_init.py
+CONFIG = $(MF) 
+
+$(CONFIG): %: $(ETC)/%
+	cp $< $@
 
 # main script
 GPSCRIPTS = gp.py makefile  example.py projects.example.yml
@@ -23,10 +26,19 @@ GPSCRIPTS = gp.py makefile  example.py projects.example.yml
 $(GPSCRIPTS): %: $(GPSOURCE)/scripts/%
 	cp $< $@
 
+GPFILES = LICENSE requirements.txt
+
+$(GPFILES): %: $(GPSOURCE)/%
+	cp $< $@
+
 update-gp:
 	rsync -av $(GPSOURCE)/gproject/ gproject/
 
-install-gp: gproject  update-gp $(GPSCRIPTS) $(MF)
+install-gp: gproject  update-gp $(GPSCRIPTS) $(GPFILES) $(CONFIG)
+
+setup-python: requirements.txt
+	pip install -r requirements.txt
+
 
 # ................................................................
 
