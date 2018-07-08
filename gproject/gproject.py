@@ -36,6 +36,7 @@ class GProject:
 
     def __init__(self, name, code=None, repo=None, wiki=None):
         self.verbose = False
+        self.verbose = True
 
         self.name = name
 
@@ -164,13 +165,18 @@ class GProject:
     def read_release(self):
         """ read the release file and set the release version """
 
-        if not self.release_file:
-            return
 
-        rfh = open(self.release_file, 'r')
-        v = rfh.read()
-        rfh.close()
-        v  = re.sub('\s+$', '', v)  # trim
+        if self.release_file:
+            rfh = open(self.release_file, 'r')
+            v = rfh.read()
+            rfh.close()
+            v  = re.sub('\s+$', '', v)  # trim
+        else:
+            print("No release file, using default")
+            # TODO:
+            #  create default release file ??
+            v = '0.1'
+
         self.set_release_version(v)
 
     def set_release_version(self, v):
