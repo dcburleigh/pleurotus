@@ -91,13 +91,13 @@ class GProject:
                 self.wiki_page = page_name
 
         if not self.wiki_page:
-            print "no page name"
+            print("no page name")
             return
 
         self.wiki_page_url  = self.wiki_url + '/' + self.wiki_page
 
         if not self.release:
-            print self.name + " - release not defined"
+            print(self.name + " - release not defined")
             return
 
         # renotes_option
@@ -107,7 +107,7 @@ class GProject:
         self.relnotes_page = self.wiki_page + '/ReleaseNotes/' + self.release
 
         if not self.wiki_url:
-            print "ERROR no wiki url"
+            print("ERROR no wiki url")
             return
         self.relnotes_url =  self.wiki_url + '/' + self.relnotes_page
 
@@ -139,7 +139,7 @@ class GProject:
         """
 
         if not self.repo_dir:
-            print "no repo"
+            print("no repo")
             return
 
         f =  self.repo_dir
@@ -171,36 +171,50 @@ class GProject:
             v = rfh.read()
             rfh.close()
             v  = re.sub('\s+$', '', v)  # trim
+            v = float(v)
         else:
             print("No release file, using default")
             # TODO:
             #  create default release file ??
-            v = '0.1'
+            #v = '0.1'
+            v = 0.1 # DEFAULT
 
         self.set_release_version(v)
 
     def set_release_version(self, v):
         """ set the value of curernt release version
 
-        v is a decimal (float)
+        v is a decimal (float) of the form
+           <major>.<minor>
+
+        previous version 0.1 less ?
+
+        is version 1.1 == 1.10? or is 1.10 9 revs greater?
 
         current project is assumed in the develop branch
         """
 
-        self.release = v
-        vf = float(v)
+        # convert to string
+        self.release = str(v)
 
         # previous release (assumed: in master)
-        last_vf = vf - 0.1
+        #last_vf = v - 0.1000
+        #last_vf = vf - 0.05
+        # handle imprecise floating point math,
+        #  assume minor version
+        last_vf = round(v - 0.1000, 2)
         self.last_release = str(last_vf)
-        #print name, "v=", v, "last=", vf
+        #self.last_release = "%2.1f" % last_vf
+        print("name={} v={}  last={} last={}".format(self.name, v, last_vf, self.last_release) )
 
         if not self.prefix:
-            print "no prefix defined, cant' set tags"
+            print("no prefix defined, cant' set tags")
             return
 
-        self.next_tag = self.prefix + v
-        self.last_tag = "%s%s" % ( self.prefix, last_vf)
+        # next == next production version
+        #  == current development version
+        self.next_tag = self.prefix + self.release
+        self.last_tag = "%s%s" % ( self.prefix, self.last_release)
 
 
     def show(self, since=None, format='all'):
@@ -267,7 +281,7 @@ class GProject:
 
     def set_archive_dir(self, dir):
         if not os.path.exists(dir):
-            print "no such directory '%s' " % (dir)
+            print("no such directory '%s' " % (dir))
             return
 
         for part in [ self.code, self.release]:
@@ -281,24 +295,24 @@ class GProject:
     def archive_release(self):
         """ save all commit logs for this release """
 
-        #print "save to " + self.archive_dir
+        #print("save to " + self.archive_dir)
         #return
         self.repo_log('release', 'files')
 
         for r in self.repo_list:
             u = r.get_status()
             if u:
-                print "Warning: %d uncommitted files in %s " % ( len(u), r.dir)
+                print("Warning: %d uncommitted files in %s " % ( len(u), r.dir))
 
             f = os.path.join( self.archive_dir,  r.name + '.txt')
             if os.path.exists(f):
-                print "over-writing '%s'" % f
+                print("over-writing '%s'" % f)
 
             lfh = open(f, 'w')
             if not lfh:
                 raise Exception("cannot open " + f)
             lfh.write( "\n".join(r.commits) )
-            print "wrote: ",f
+            print("wrote: ",f)
             lfh.close()
 
         # filter_commits()
@@ -319,7 +333,7 @@ class GProject:
                     #print("no match " + c)
                     continue
 
-                #print "match: ", m.group(1)
+                #print("match: ", m.group(1))
                 if not m.group(1) in issues:
                     issues[ m.group(1) ] = []
                 issues[m.group(1) ].append( r.name + '; ' + c)
@@ -358,12 +372,12 @@ class GProject:
                 t = self.last_tag
                 if len(r.tags) == 0:
                     if self.verbose:
-                        print "no tags"
+                        print("no tags")
                     t = 'master'
                 else:
-                    #print r.tags
+                    #print(r.tags)
                     tlist = sorted(r.tags.keys())
-                    #print tlist
+                    #print(tlist)
                     if not self.last_tag in tlist:
                         t = tlist[-1]
                         if self.verbose:
@@ -371,7 +385,7 @@ class GProject:
 
                 args = ' ' + t + '.. '
                 if self.verbose:
-                    print "since: ", self.last_tag, " args:", args
+                    print("since: ", self.last_tag, " args:", args)
 
             r.get_log(args, format)
 
@@ -390,11 +404,11 @@ class GProject:
             # cutoff ( primary /not primary)
             if len(ufiles) > 0:
                 errors.append( str(len(ufiles)) + " uncommitted files in repo " + r.name)
-                #print "\n".join(ufiles)
+                #print("\n".join(ufiles))
 
 
         #if errors:
-        #    print  "ERROR: " + "\n".join(errors)
+        #    print( "ERROR: " + "\n".join(errors))
         #    #return
 
         self.repo_log(since='push')
@@ -404,7 +418,7 @@ class GProject:
                 errors.append( str(len(r.commits)) + " commits not pushed to remote in repo " + r.name)
 
         #if errors:
-        #    print  "ERROR: " + "\n".join(errors)
+        #    print( "ERROR: " + "\n".join(errors))
         #    return
 
         self.lookup_tags()
@@ -418,7 +432,7 @@ class GProject:
                 print('%s is missing last tag, %s ' % ( r.name, self.last_tag) )
 
         if errors:
-            print  "ERROR: " + "\n".join(errors)
+            print( "ERROR: " + "\n".join(errors))
             return
 
         return 1
@@ -437,7 +451,7 @@ class GProject:
             for t in r.tags:
                 d = r.tags[t]
                 if not t in self.tags:
-                    ###print "add tag: ", t
+                    ###print("add tag: ", t)
                     self.tags[t] = []
                 self.tags[t].append( r.dir + "; " + d)
 

@@ -44,7 +44,7 @@ class ProjectList:
             self.wiki_url = wiki
 
         if select_project:
-            #print "select " + select_project
+            #print("select " + select_project)
             self.select_project = select_project
         else:
             self.select_project = None
@@ -59,7 +59,7 @@ class ProjectList:
             return
 
         if not os.path.exists(f):
-            print "ERROR no such file " + f
+            print("ERROR no such file " + f)
             return
 
         m = re.match('.*\.([a-z]+)$', f);
@@ -92,7 +92,7 @@ class ProjectList:
 
         #print("got: " + text)
         cfg = yaml.load(text)
-        ###print cfg
+        ###print(cfg)
         if 'repo_root' in cfg:
             self.repo_root = cfg['repo_root']
 
@@ -111,7 +111,7 @@ class ProjectList:
                 continue
 
             if project_name != None and project_name != p['name']:
-                ###print "skip"
+                ###print("skip")
                 continue
 
             if  'code' in p:
@@ -138,7 +138,7 @@ class ProjectList:
                     tr = True
                 if 'primary' in r:
                     gp.set_primary_repo(dir)
-                    print "v=" + gp.release
+                    print("v=" + gp.release)
                 else:
                     gp.add_repo(dir, tracking=tr)
 
@@ -155,20 +155,20 @@ class ProjectList:
 
         n = 0
         cols = {}
-        #print ("read: " + self.pfile)
+        #print(("read: " + self.pfile))
         with open(self.pfile, 'rb') as csvfile:
             freader  = csv.reader(csvfile, delimiter="\t", quotechar='|')
             for row in freader:
                 if len(row) == 0:
-                    print "skip"
+                    print("skip")
                     continue
 
                 n += 1
 
-                #print "row,", n
+                #print("row,", n)
                 if n == 1:
                     cols = row
-                    #print "header", cols
+                    #print("header", cols)
                     continue
 
                 # 0)
@@ -195,7 +195,7 @@ class ProjectList:
 
                 # 3) build dir
                 if len(row) >= 4 and row[3]:
-                    ###print "set b", row[3]
+                    ###print("set b", row[3])
                     #self.projects[name]['build_path'] = row[3]
                     build_dir = row[3]
                 else:
@@ -236,7 +236,7 @@ class ProjectList:
                 self.projects[name] = gp
 
                 for k in range(8,len(row)):
-                    #print "related:", row[k]
+                    #print("related:", row[k])
                     if not row[k]:
                         continue
                     repo = os.path.join( self.repo_root, row[k])
@@ -246,7 +246,7 @@ class ProjectList:
         """ return the specified GProject object """
         if not name:
             if not self.select_project:
-                print "no project specified"
+                print("no project specified")
                 return
             name = self.select_project
 

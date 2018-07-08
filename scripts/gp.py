@@ -91,7 +91,7 @@ def show_log(project_name, since=None, summary=True ):
 
     gp = plist.get_project();
     if not gp:
-        print "no such project"
+        print("no such project")
         return
 
     gp.repo_log(since)
@@ -115,17 +115,17 @@ def tag_release(project_name):
 
     gp = plist.get_project(project_name);
     if not gp:
-        print "no such project"
+        print("no such project")
         return
 
     # TODO: primary-only
     rv = gp.verify_release()
     if not rv:
-        print "not ready"
+        print("not ready")
         return
 
     print( "Release '%s' is ready" % ( gp.next_tag))
-    print "OK!"
+    print("OK!")
 
     for r in gp.repo_list:
         print( '%s: tag %s' % (r.name, gp.next_tag))
@@ -139,15 +139,15 @@ def verify_release(project_name):
 
     gp = plist.get_project(project_name);
     if not gp:
-        print "no such project"
+        print("no such project")
         return
     rv = gp.verify_release()
     if not rv:
-        print "not ready"
+        print("not ready")
         return
 
     print( "Release '%s' is ready" % ( gp.next_tag))
-    print "OK!"
+    print("OK!")
 
 
 def show_status(project_name ):
@@ -157,23 +157,23 @@ def show_status(project_name ):
 
     gp = plist.get_project(project_name);
     if not gp:
-        print "no such project"
+        print("no such project")
         return
 
     for r in gp.repo_list:
         ufiles = r.get_status()
         print( "%s: %s files " % ( r.dir, len(ufiles) ))
-        print "    " + "\n    ".join(ufiles)
+        print("    " + "\n    ".join(ufiles))
 
 
 def show_tags(project_name ):
     global plist
 
     ###plist.read()
-    ###print ( "%d projects " % ( plist.num() ))
+    ###print(( "%d projects " % ( plist.num() )))
     gp = plist.get_project(project_name);
     if not gp:
-        print "no such project"
+        print("no such project")
         return
 
     print( "current tag: %s " % ( gp.next_tag  ) )
@@ -184,7 +184,7 @@ def show_tags(project_name ):
     for r in gp.repo_list:
         print("> %s: (%s): " %  (r.name, r.dir) )
         if len(r.tags) == 0:
-            print "    No releases"
+            print("    No releases")
 
         for t in gp.taglist:
             if t in r.tags:
@@ -198,7 +198,7 @@ def show_tags(project_name ):
             print( "   %s %10s) %s" % ( st, d, t) )
 
 
-    print "\nTag -> repo"
+    print("\nTag -> repo")
     for t in gp.taglist:
         print( "%s: \n    %s" % ( t, "\n    ".join(gp.tags[t]) ) )
 
@@ -220,7 +220,7 @@ def show_repo(repo_name):
 
     print("Repo: %s"  % ( r.name) )
     r.get_tags(True)
-    print "tags: ", r.tags
+    print("tags: ", r.tags)
 
 
 def archive_release():
@@ -266,7 +266,7 @@ def verify_repo(repo_name):
         gp.show(format='brief')
         ###print("found r=%s" % ( r.name ))
         if r.name == gp.repo_list[0].name:
-            print "ERROR: is primary repo"
+            print("ERROR: is primary repo")
             continue
 
         ready = True
@@ -275,7 +275,7 @@ def verify_repo(repo_name):
         ufiles = rp.get_status()
         if ufiles:
             #ready = False
-            print "Warning: %d uncommitted files in primary: %s " % ( len(ufiles), rp.name )
+            print("Warning: %d uncommitted files in primary: %s " % ( len(ufiles), rp.name ))
             if len(ufiles) > max_repo_ufiles:
                 ready = False
 
@@ -292,11 +292,11 @@ def verify_repo(repo_name):
             # TODO: allow user to review
             waiting_on_projects.append( gp.name )
         else:
-            print "OK! "
-        print "\n"
+            print("OK! ")
+        print("\n")
 
     if waiting_on_projects:
-        print "waiting on projects: " + ", ".join(waiting_on_projects)
+        print("waiting on projects: " + ", ".join(waiting_on_projects))
 
 
 
@@ -333,7 +333,7 @@ def list_all(format='full'):
 
     #plist.read()
     if not plist.num():
-        print "No projects defined"
+        print("No projects defined")
         return
 
     if format == 'full':
@@ -412,7 +412,7 @@ def main():
         elif o == '-f':
             force_update_archive = True
         else:
-            print "invalid argument: ", o
+            print("invalid argument: ", o)
 
     #plist = ProjectList( repo=repo_root, wiki=wiki_url)
 
