@@ -78,16 +78,16 @@ import getopt
 
 from gproject.gproject import GProject
 from gproject.projects import ProjectList
+from gproject.logger import init_logging
 
 #from gp_init import repo_root, archive_root, wiki_url
 
 plist = None
 gp = None
+log = init_logging(fname='gp.log')
 
 def show_log(project_name, since=None, summary=True ):
     global plist
-
-    #plist.read()
 
     gp = plist.get_project();
     if not gp:
@@ -157,12 +157,13 @@ def show_status(project_name ):
 
     gp = plist.get_project(project_name);
     if not gp:
-        print("no such project")
+        log.info("no such project")
         return
 
     for r in gp.repo_list:
         ufiles = r.get_status()
         print( "%s: %s files " % ( r.dir, len(ufiles) ))
+        print( "  {}".format(r.describe()))
         print("    " + "\n    ".join(ufiles))
 
 
@@ -209,7 +210,7 @@ def show_project(name):
 
     gp = plist.get_project(name);
     if not gp:
-        print( "ERROR: no such project: %s " % ( name ))
+        log.error( "no such project: %s " % ( name ))
         return
 
     gp.show('release')
@@ -333,7 +334,7 @@ def list_all(format='full'):
 
     #plist.read()
     if not plist.num():
-        print("No projects defined")
+        log.info("No projects defined")
         return
 
     if format == 'full':
@@ -354,6 +355,7 @@ def main():
     manifest = 'projects.yml'
     project_name = None
 
+    log.info('---------Begins')
     try:
         opts,args = getopt.getopt(sys.argv[1:], 'fip:tlsvar:', ['manifest=', 'tag-release', 'verify=', 'test', 'list', 'since=', 'last', 'depends='])
     except getopt.GetoptError as err:
@@ -452,10 +454,6 @@ def main():
     else:
         print("ERROR: invalid action: %s" % ( action ) )
 
-    #test1()
-    #test2()
-    #test4()
-    #test3()
 
 if __name__ == '__main__':
     status = main()
