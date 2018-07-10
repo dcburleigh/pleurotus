@@ -10,13 +10,17 @@ Usage:
 
   ufiles = r.get_status()
 
-  print( "%d uncommitted files in repo %s " % ( len(ufiles), r.dir)
+  print( "{} uncommitted files in repo {} ".format( len(ufiles), r.dir)
 
 """
 
 import re
 import subprocess
+import logging
 ###??? from test.warning_tests import outer
+
+#trimm_pattern
+log = logging.getLogger('|.{}'.format(__name__.split('.')[-1]))
 
 class Repo:
 
@@ -50,9 +54,10 @@ class Repo:
             self.name = name
         else:
             #re.match('/([^\/]+)$', dir)
+            # get project name from repo directory
             m = self.dir_name_pattern.match(dir)
             if not m:
-                print("ERROR no name in " + dir)
+                log.error("no name in " + dir)
                 return
             self.name = m.group(1)
             #print("got name: %s" % ( self.name))
@@ -86,17 +91,16 @@ class Repo:
             proc = subprocess.Popen(clist, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             (out, serr) = proc.communicate()
         except  Exception as err:
-            print("ERROR: command failed: \n%s\n err=%s ") % (clist,err)
+            log.error("git command failed: \n{}\n err={} ").format(clist,err)
             return
 
         if serr:
+            log.error("git command error: {}".format(serr) )
             #print("err:", serr)
             self.last_error = serr
             return
 
-        ####print("type={}".format(type(out)))
         return out.decode() # as string
-        ###return out
 
     def list_commits(self, format='summary'):
         nc = len(self.commits)
@@ -104,17 +108,18 @@ class Repo:
         if format == 'summary':
             if nc == 0:
                 print("    None ")
+
             elif nc == 1:
-                print( "    %s " % ( self.commits[0]))
+                print( "    {} ".format( self.commits[0]))
             else:
-                print("    %d commits " % ( nc) )
-                print( "    %s\n    %s " % ( self.commits[0], self.commits[-1]))
+                print("    {} commits ".format( nc) )
+                print( "    {}\n    {} ".format( self.commits[0], self.commits[-1]))
             return
 
         # format = all
         clist = sorted( self.commits, reverse=True);
         for c in clist:
-            print("    %s" % ( c ) )
+            print("    {}".format( c ) )
 
 
     def get_log(self, log_args='', format='oneline'):
@@ -128,9 +133,12 @@ class Repo:
     def get_status(self):
         return self.git_command_rows('status --short')
 
+    def describe(self):
+        return self.git_command('describe --tags --long ').strip()
+
     def get_commit(self, commit):
         return self.git_command( 'show ' + commit + ' ' + self.show_format_brief)
-        #return self.git_command( 'show ' + commit + ' -s  --pretty="format:%ci %d %h %b" ')
+        #return self.git_command( 'show ' + commit + ' -s  --pretty="format:%ci {} %h %b" ')
 
     def taglist(self):
         return sorted(self.tags.keys(), reverse=True)
@@ -182,7 +190,7 @@ class Repo:
         ufiles = self.get_status()
         nu = len(ufiles)
         if nu:
-            print("Warning: %d uncommitted files in primary: %s " % ( nu, self.name ))
+            log.warn("{} uncommitted files in primary: {} ".format( nu, self.name ))
 
             if self.is_priamry:
                 if nu > self.max_ufiles_primary:
@@ -193,7 +201,7 @@ class Repo:
         self.get_log(log_range)
         nr = len(self.commits)
         if nr:
-            print("Warning: %d commits in repo since last release (%s)" % ( len(r.commits),  log_range))
+            log.warn("{} commits in repo since last release ({})".format( len(r.commits),  log_range))
             if self.is_primary:
                 if nr > max_commits_primary:
                     ok = False
@@ -210,4 +218,5 @@ class Repo:
             command += ' -m ' + message
 
         out = self.git_command( command )
-        print("got: ", out)
+        log.debug("got: " + out)
+        log.info("result={}".format(out))
