@@ -2,6 +2,8 @@
 REPOROOT =
 ETC = /usr/local/etc/deldev
 
+PYDOC = python -m pydoc
+
 -include makefile.conf
 
 # ................................................................
@@ -15,7 +17,7 @@ gproject:
 MF = projects.yml
 CONFIG = projects.tsv gp_init.py
 CONFIG = $(MF) gp_init.py
-CONFIG = $(MF) 
+CONFIG = $(MF)
 
 $(CONFIG): %: $(ETC)/%
 	cp $< $@
@@ -51,7 +53,7 @@ show-project: install-gp
 	python gp.py -p $(PROJECTNAME) -i  --manifest $(MF)
 
 show-status: install-gp
-	python gp.py -p $(PROJECTNAME) -s  --manifest $(MF)
+	python gp.py -p $(PROJECTNAME) -s  
 
 show-tags: install-gp
 	python gp.py -p $(PROJECTNAME) -t  --manifest $(MF)  > t.out
@@ -77,10 +79,22 @@ tag-release: install-gp
 endif
 
 gp-doc: update-gp
-	pydoc gp
-	pydoc gproject
-	pydoc gproject.gproject
-	pydoc gproject.repo
+	$(PYDOC) gp
+	$(PYDOC) gproject
+	$(PYDOC) gproject.gproject
+	$(PYDOC) gproject.repo
 
+ALLDOCS = gpdocs.txt
+write-doc: update-gp
+	echo '' > $(ALLDOCS)
+	$(PYDOC) gp >> $(ALLDOCS)
+	$(PYDOC) gproject >> $(ALLDOCS)
+	$(PYDOC) gproject.gproject >> $(ALLDOCS)
+	$(PYDOC) gproject.repo >> $(ALLDOCS)
+	$(PYDOC) gproject.logger >> $(ALLDOCS)
+	ls -l $(ALLDOCS)
 
+test-all: PROJECTNAME = GProject
+
+test-all: list-versions verify show-project
 # ................................................................

@@ -1,28 +1,31 @@
 # Installation
 
+
+## Prerequisites
+
+* Git
+* Python 3.6+
+** module:  ruamel.yaml
+
+## code directory
+
 * clone this repo into GIT/pleurotus
 
-* Python 2.y
-** module:  ruamel.yaml 
-
-
-## build directory
+## working s directory
 
 mkdir gp
-
 cd gp
-
-* list of projects
-edit  projects.tsv
-
 cp  GIT/pleurotus/scripts/makefile .
 
 edit makefile.conf
 
 make install-gp
 
-edit gp_init.py
-* see gp_init.example.py
+## Configuration
+
+edit ETC/projects.yml
+
+see projects.example.yml for details
 
 ## verify
 
