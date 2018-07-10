@@ -13,8 +13,12 @@ import gproject
 import os.path
 import re
 import csv
+import logging
+
 #import subprocess
 from .repo import Repo
+
+log = logging.getLogger('|.{}'.format(__name__.split('.')[-1]))
 
 class GProject:
     """ represent a project
@@ -78,7 +82,7 @@ class GProject:
         """
          set the URL for the Wiki pages for the project,
         and latest release notes;
-        Not all projects has wiki pages
+        Not all projects have a wiki page
         """
 
         if wiki_url:
@@ -91,13 +95,13 @@ class GProject:
                 self.wiki_page = page_name
 
         if not self.wiki_page:
-            print("no page name")
+            log.debug("no wiki page name")
             return
 
         self.wiki_page_url  = self.wiki_url + '/' + self.wiki_page
 
         if not self.release:
-            print(self.name + " - release not defined")
+            log.error(self.name + " - release not defined")
             return
 
         # renotes_option
@@ -107,7 +111,7 @@ class GProject:
         self.relnotes_page = self.wiki_page + '/ReleaseNotes/' + self.release
 
         if not self.wiki_url:
-            print("ERROR no wiki url")
+            log.error("{} - no wiki url".format(self.name))
             return
         self.relnotes_url =  self.wiki_url + '/' + self.relnotes_page
 
@@ -125,7 +129,7 @@ class GProject:
 
     def add_repo(self, repo,name=None, tracking=False ):
         if not os.path.exists(repo):
-            print('ERROR no such repo ' + repo )
+            log.error('no such repo {}'.format(repo) )
             return
 
         r = Repo(repo, self.prefix,name=name)
@@ -139,25 +143,24 @@ class GProject:
         """
 
         if not self.repo_dir:
-            print("no repo")
+            log.error("{} - no repo directory defined".foramt(self.name))
             return
 
         f =  self.repo_dir
         if not os.path.exists(f):
-            print ("no such directory '%s' " % ( f ) )
+            logger.info("no such directory '{}' ".format( f ) )
             return
 
         if self.rel_path:
             f = os.path.join(f, self.rel_path)
 
         if not os.path.exists(f):
-            print ("no such directory '%s' " % ( f ) )
+            logger.error("no such directory '{}' ".format( f ) )
             return
 
         f = os.path.join(f, 'release.txt')
         if not os.path.exists(f):
-            if self.verbose:
-                print ("no such file: %s" % ( f))
+            log.debug("no such file: {}".format( f))
             return
 
         self.release_file = f
@@ -165,15 +168,14 @@ class GProject:
     def read_release(self):
         """ read the release file and set the release version """
 
-
         if self.release_file:
-            rfh = open(self.release_file, 'r')
-            v = rfh.read()
-            rfh.close()
+            with open(self.release_file, 'r') as rfh:
+                v = rfh.read()
+
             v  = re.sub('\s+$', '', v)  # trim
             v = float(v)
         else:
-            print("No release file, using default")
+            log.debug("No release file, using default")
             # TODO:
             #  create default release file ??
             #v = '0.1'
@@ -205,25 +207,24 @@ class GProject:
         last_vf = round(v - 0.1000, 2)
         self.last_release = str(last_vf)
         #self.last_release = "%2.1f" % last_vf
-        print("name={} v={}  last={} last={}".format(self.name, v, last_vf, self.last_release) )
+        log.debug("name={} v={}  last={} last={}".format(self.name, v, last_vf, self.last_release) )
 
         if not self.prefix:
-            print("no prefix defined, cant' set tags")
+            log.error("no prefix defined, can't set tags")
             return
-
         # next == next production version
         #  == current development version
         self.next_tag = self.prefix + self.release
-        self.last_tag = "%s%s" % ( self.prefix, self.last_release)
-
+        #self.last_tag = "%s%s" % ( self.prefix, self.last_release)
+        self.last_tag = self.prefix + self.last_release
 
     def show(self, since=None, format='all'):
         """ display most details about this project """
 
-        print ( "Project: %s [ %s ]  [tag: %s] " % ( self.name, self.code, self.prefix))
+        print ( "Project: {} [ {} ]  [tag: {}] ".format( self.name, self.code, self.prefix))
         #print ( "tag prefix: %s " % ( self.prefix))
 
-        print ("    Current release: %s"  % ( self.current_release() ))
+        print ("    Current release: {}".format( self.current_release() ))
         if format == 'brief':
             return
 
@@ -231,13 +232,13 @@ class GProject:
             t = self.next_tag
         else:
             t = '???'
-        print ( "    beta: %s " % ( t ))
+        print ( "    beta: {} ".format( t ))
 
         if self.last_tag:
             t = self.last_tag
         else:
             t = '???'
-        print ( "    Last release: %s " % ( t ))
+        print ( "    Last release: {} ".format( t ))
         print( "\n")
 
         if since:
@@ -252,7 +253,7 @@ class GProject:
                 st = 'P'
             elif r.tracking:
                 st = 'T'
-            print( "%1s %-12s: %s " % (st, r.name, r.dir))
+            print( "{:1s} {:<12s}: {} ".format(st, r.name, r.dir))
             r.list_commits()
 
         if nr == 0:
@@ -269,7 +270,7 @@ class GProject:
         else:
             rp = 'n/a'
 
-        print ( "Wiki page: %s \n    release notes: %s " % ( wp, rp ))
+        print ( "Wiki page: {} \n    release notes: {}".format( wp, rp ))
 
     def current_release(self):
         """ return the release version """
@@ -281,12 +282,11 @@ class GProject:
 
     def set_archive_dir(self, dir):
         if not os.path.exists(dir):
-            print("no such directory '%s' " % (dir))
+            log.error("no such directory '{}' ".format(dir))
             return
 
         for part in [ self.code, self.release]:
             dir = os.path.join(dir, part)
-            #print dir
             if not os.path.exists(dir):
                 os.mkdir( dir )
 
@@ -302,31 +302,31 @@ class GProject:
         for r in self.repo_list:
             u = r.get_status()
             if u:
-                print("Warning: %d uncommitted files in %s " % ( len(u), r.dir))
+                log.warn("{} uncommitted files in {} ".format( len(u), r.dir))
 
             f = os.path.join( self.archive_dir,  r.name + '.txt')
             if os.path.exists(f):
-                print("over-writing '%s'" % f)
+                log.debug("over-writing '{}'".format(f) )
 
-            lfh = open(f, 'w')
-            if not lfh:
-                raise Exception("cannot open " + f)
-            lfh.write( "\n".join(r.commits) )
-            print("wrote: ",f)
-            lfh.close()
+            try:
+                with open(f, 'w') as lfh:
+                    lfh.write( "\n".join(r.commits) )
+                    log.info("wrote: {}".format(f))
+            except Exception as err:
+                print("open {} failed: {}".format(f, str(err)))
 
         # filter_commits()
 
         f = os.path.join( self.archive_dir,  'mantis' + '.txt')
         fh = open(f, 'w')
         if not fh:
-            raise Exception("cannot opne " + f)
+            raise Exception("cannot open " + f)
 
         filter = re.compile('.*mantis\s*(\d+)', re.I)
         issues = {}
         for r in self.repo_list:
-            fh.write("%s \n" % ( r.name) )
-            print("%s: %d commits" % ( r.name,  len(r.commits)) )
+            fh.write("{} \n".format( r.name) )
+            print("{}: {} commits".format( r.name,  len(r.commits)) )
             for c in r.commits:
                 m = filter.match(c)
                 if not m:
@@ -340,10 +340,10 @@ class GProject:
                 #fh.write("  " + c + " \n")
 
         for m in sorted(issues):
-            fh.write("  %s\n" % ( m ))
+            fh.write("  {}\n".format( m ))
             for c in issues[m]:
                 fh.write("     " + c + "\n")
-        print("wrote: %s" % ( f ))
+        print("wrote: {}".format( f ))
 
 
     def repo_log(self, since=None, format=None):
@@ -381,7 +381,7 @@ class GProject:
                     if not self.last_tag in tlist:
                         t = tlist[-1]
                         if self.verbose:
-                            print( "tag %s not found in repo %s, using %s " % ( self.last_tag, r.name, t))
+                            print( "tag {}not found in repo {}, using {} ".format( self.last_tag, r.name, t))
 
                 args = ' ' + t + '.. '
                 if self.verbose:
@@ -425,11 +425,11 @@ class GProject:
         for r in self.repo_list:
             #print("tags " + "\n". join(r.tags.keys() ))
             if self.next_tag in r.tags.keys() :
-                errors.append( '%s is already tagged ' % ( r.name))
+                errors.append( '{} is already tagged '.format( r.name))
 
             if not self.last_tag in r.tags.keys():
                 #errors.append('%s is missing last tag, %s ' % ( r.name, self.last_tag) )
-                print('%s is missing last tag, %s ' % ( r.name, self.last_tag) )
+                print('{} is missing last tag, {}'.format( r.name, self.last_tag) )
 
         if errors:
             print( "ERROR: " + "\n".join(errors))
