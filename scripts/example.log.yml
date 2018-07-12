@@ -1,0 +1,30 @@
+version: 1
+log_root: '|'
+formatters:
+  cons:
+    format: '%(name)s,  %(levelname)s - %(message)s'
+  file:
+    #format: '%(asctime)s :  %(name)s - %(levelname)s - %(message)s'
+    format: 'time:  %(name)s - %(levelname)s - %(message)s'
+
+handlers:
+  console: 
+    class: logging.StreamHandler
+    level: INFO 
+    formatter: cons
+    stream: ext://sys.stdout
+  file: 
+    class: logging.FileHandler
+    level: DEBUG
+    formatter: file
+    #filename: 'x.log'
+    filename: 'gp.log'
+    mode: 'w'
+loggers:
+  '|':
+    level: DEBUG
+    handlers: [console,file]
+    propagate: no
+root:
+  level: DEBUG
+  handlers: [console,file]
