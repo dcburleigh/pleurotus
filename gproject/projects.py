@@ -22,14 +22,13 @@ import re
 import csv
 import subprocess
 
-#from ruamel.yaml import YAML
 from ruamel.yaml import YAML
-import logging
+#import logging
+from .logger import custom_logger
+log = custom_logger( __name__ )
 
 from .gproject import GProject
 from .repo import Repo
-
-log = logging.getLogger('|.{}'.format(__name__.split('.')[-1]))
 
 class ProjectList:
     pfile = 'projects.tsv'
@@ -41,6 +40,7 @@ class ProjectList:
 
     def __init__(self, f=None, repo=None, wiki=None, select_project=None):
 
+        log.debug('list: init')
         if repo:
             self.repo_root = repo
         if wiki:
@@ -130,6 +130,7 @@ class ProjectList:
                 continue
 
             for r in p['repos']:
+                log.debug("{} add repo={}".format(code,r['name']))
                 if 'name' in r:
                     dir = os.path.join(self.repo_root, r['name'])
                 if 'release_path' in r:

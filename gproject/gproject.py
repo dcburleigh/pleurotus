@@ -13,12 +13,12 @@ import gproject
 import os.path
 import re
 import csv
-import logging
+#import logging
 
+from .logger import custom_logger
+log = custom_logger( __name__ )
 #import subprocess
 from .repo import Repo
-
-log = logging.getLogger('|.{}'.format(__name__.split('.')[-1]))
 
 class GProject:
     """ represent a project
@@ -119,6 +119,7 @@ class GProject:
         if repo:
             self.repo_dir = repo
 
+        log.debug("add primary name={}".format(name))
         r = Repo(self.repo_dir, self.prefix,name=name)
         r.is_primary = True
 
@@ -302,7 +303,7 @@ class GProject:
         for r in self.repo_list:
             u = r.get_status()
             if u:
-                log.warn("{} uncommitted files in {} ".format( len(u), r.dir))
+                log.warn("{} uncommitted files in '{}'' ".format( len(u), r.dir))
 
             f = os.path.join( self.archive_dir,  r.name + '.txt')
             if os.path.exists(f):
@@ -398,14 +399,17 @@ class GProject:
 
 
     def verify_release(self):
+        print('got here')
+        log.debug("d verify")
+        log.info("i verify")
+        log.error("e verify")
         errors = []
         for r in self.repo_list:
             ufiles = r.get_status()
             # cutoff ( primary /not primary)
             if len(ufiles) > 0:
-                errors.append( str(len(ufiles)) + " uncommitted files in repo " + r.name)
-                #print("\n".join(ufiles))
-
+                #errors.append( str(len(ufiles)) + " uncommitted files in repo " + r.name)
+                errors.append( "{} uncommitted files in repo ".format( len(ufiles), r.name) )
 
         #if errors:
         #    print( "ERROR: " + "\n".join(errors))
@@ -429,10 +433,12 @@ class GProject:
 
             if not self.last_tag in r.tags.keys():
                 #errors.append('%s is missing last tag, %s ' % ( r.name, self.last_tag) )
-                print('{} is missing last tag, {}'.format( r.name, self.last_tag) )
+                log.info('{} is missing last tag, {}'.format( r.name, self.last_tag) )
 
         if errors:
-            print( "ERROR: " + "\n".join(errors))
+            #print( "....not ready: " + "\n".join(errors))
+            #log.info( "info not ready: " + "\n".join(errors))
+            log.warn( "not ready: " + "\n".join(errors))
             return
 
         return 1

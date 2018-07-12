@@ -34,7 +34,7 @@ $(GPFILES): %: $(GPSOURCE)/%
 	cp $< $@
 
 update-gp:
-	rsync -av $(GPSOURCE)/gproject/ gproject/
+	rsync -a $(GPSOURCE)/gproject/ gproject/
 
 install-gp: gproject  update-gp $(GPSCRIPTS) $(GPFILES) $(CONFIG)
 
@@ -53,7 +53,7 @@ show-project: install-gp
 	python gp.py -p $(PROJECTNAME) -i  --manifest $(MF)
 
 show-status: install-gp
-	python gp.py -p $(PROJECTNAME) -s  
+	python gp.py -p $(PROJECTNAME) -s
 
 show-tags: install-gp
 	python gp.py -p $(PROJECTNAME) -t  --manifest $(MF)  > t.out

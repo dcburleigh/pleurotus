@@ -16,11 +16,9 @@ Usage:
 
 import re
 import subprocess
-import logging
-###??? from test.warning_tests import outer
 
-#trimm_pattern
-log = logging.getLogger('|.{}'.format(__name__.split('.')[-1]))
+from .logger import custom_logger
+log = custom_logger( __name__ )
 
 class Repo:
 
@@ -60,7 +58,8 @@ class Repo:
                 log.error("no name in " + dir)
                 return
             self.name = m.group(1)
-            #print("got name: %s" % ( self.name))
+
+        log.debug("got name: %s" % ( self.name))
 
         self.is_primary = False
         self.tracking = False

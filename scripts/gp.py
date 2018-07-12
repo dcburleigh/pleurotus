@@ -76,15 +76,29 @@ import sys
 import re
 import getopt
 
+from gproject.logger import init_logging, init_logging2
+#log = init_logging2('gp.log.yml', 'gp')
+log = init_logging2('gp.log.yml')
 from gproject.gproject import GProject
 from gproject.projects import ProjectList
-from gproject.logger import init_logging
 
 #from gp_init import repo_root, archive_root, wiki_url
 
 plist = None
 gp = None
-log = init_logging(fname='gp.log')
+#
+#log = init_logging(fname='gp.log')
+#
+#log = init_logging(fname='gp.log', console_level='debug')
+#
+if False:
+    import  logging, logging.config
+    #logging.config.fileConfig('gp.log.ini')
+    cf = 'gp.log.yml'
+
+    logging.config.fileConfig('gp.log.ini')
+    log = logging.getLogger('|')
+    #log = logging.getLogger()
 
 def show_log(project_name, since=None, summary=True ):
     global plist
@@ -141,9 +155,10 @@ def verify_release(project_name):
     if not gp:
         print("no such project")
         return
+    ##print("verify")
     rv = gp.verify_release()
     if not rv:
-        print("not ready")
+        print("_______not ready")
         return
 
     print( "Release '%s' is ready" % ( gp.next_tag))
@@ -219,7 +234,10 @@ def show_repo(repo_name):
     global plist
     r = plist.init_repo(repo_name)
 
+    log.info("repo={}  primary? {}  tracking? {}".format(r.name, r.is_primary, r.tracking))
+    log.debug("{} commits ".format( len(r.commits)))
     print("Repo: %s"  % ( r.name) )
+    print("   {}".format(  r.describe() ))
     r.get_tags(True)
     print("tags: ", r.tags)
 
@@ -267,7 +285,8 @@ def verify_repo(repo_name):
         gp.show(format='brief')
         ###print("found r=%s" % ( r.name ))
         if r.name == gp.repo_list[0].name:
-            print("ERROR: is primary repo")
+            #print("ERROR: is primary repo")
+            log.error("is primary repo, skipping")
             continue
 
         ready = True
@@ -356,6 +375,7 @@ def main():
     project_name = None
 
     log.info('---------Begins')
+    log.debug('---------Begins')
     try:
         opts,args = getopt.getopt(sys.argv[1:], 'fip:tlsvar:', ['manifest=', 'tag-release', 'verify=', 'test', 'list', 'since=', 'last', 'depends='])
     except getopt.GetoptError as err:
