@@ -17,8 +17,8 @@ Usage:
 import re
 import subprocess
 
-from .logger import custom_logger
-log = custom_logger( __name__ )
+from common import logger
+log = logger.get_mod_logger( __name__ )
 
 class Repo:
 

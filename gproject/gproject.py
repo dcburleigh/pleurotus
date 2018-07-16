@@ -13,10 +13,9 @@ import gproject
 import os.path
 import re
 import csv
-#import logging
 
-from .logger import custom_logger
-log = custom_logger( __name__ )
+from common import logger
+log = logger.get_mod_logger( __name__ )
 #import subprocess
 from .repo import Repo
 
@@ -32,6 +31,7 @@ class GProject:
     :release: current version of the release in development
     :last_release: version of the previous (stable, master) release
     :next_tag: tag for the commit(s) when the current version is released
+    :repo_list - list of repo objects  in this project
 
     """
 
@@ -207,7 +207,7 @@ class GProject:
         #  assume minor version
         last_vf = round(v - 0.1000, 2)
         self.last_release = str(last_vf)
-        #self.last_release = "%2.1f" % last_vf
+
         log.debug("name={} v={}  last={} last={}".format(self.name, v, last_vf, self.last_release) )
 
         if not self.prefix:
@@ -399,10 +399,6 @@ class GProject:
 
 
     def verify_release(self):
-        print('got here')
-        log.debug("d verify")
-        log.info("i verify")
-        log.error("e verify")
         errors = []
         for r in self.repo_list:
             ufiles = r.get_status()
@@ -411,19 +407,11 @@ class GProject:
                 #errors.append( str(len(ufiles)) + " uncommitted files in repo " + r.name)
                 errors.append( "{} uncommitted files in repo ".format( len(ufiles), r.name) )
 
-        #if errors:
-        #    print( "ERROR: " + "\n".join(errors))
-        #    #return
-
         self.repo_log(since='push')
         for r in self.repo_list:
             # cutoff ( primary /not primary)
             if len(r.commits) > 0:
                 errors.append( str(len(r.commits)) + " commits not pushed to remote in repo " + r.name)
-
-        #if errors:
-        #    print( "ERROR: " + "\n".join(errors))
-        #    return
 
         self.lookup_tags()
         for r in self.repo_list:

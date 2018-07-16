@@ -10,16 +10,17 @@ PYDOC = python -m pydoc
 
 GPSOURCE = $(REPOROOT)/pleurotus
 
-gproject:
+DIRS = gproject common
+
+$(DIRS):
 	mkdir -p  $@
 
 # configuration files
 MF = projects.yml
-CONFIG = projects.tsv gp_init.py
-CONFIG = $(MF) gp_init.py
-CONFIG = $(MF)
 
-$(CONFIG): %: $(ETC)/%
+CONFIG = $(MF) gp.log.yml
+
+$(MF): %: $(ETC)/%
 	cp $< $@
 
 # main script
@@ -35,8 +36,9 @@ $(GPFILES): %: $(GPSOURCE)/%
 
 update-gp:
 	rsync -a $(GPSOURCE)/gproject/ gproject/
+	rsync -a $(GPSOURCE)/common/ common/
 
-install-gp: gproject  update-gp $(GPSCRIPTS) $(GPFILES) $(CONFIG)
+install-gp: $(DIRS) update-gp $(GPSCRIPTS) $(GPFILES) $(CONFIG)
 
 setup-python: requirements.txt
 	pip install -r requirements.txt
@@ -50,7 +52,7 @@ list-versions: install-gp
 ifneq ($(PROJECTNAME),)
 
 show-project: install-gp
-	python gp.py -p $(PROJECTNAME) -i  --manifest $(MF)
+	python gp.py -p $(PROJECTNAME) -i 
 
 show-status: install-gp
 	python gp.py -p $(PROJECTNAME) -s

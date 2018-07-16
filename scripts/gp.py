@@ -76,36 +76,21 @@ import sys
 import re
 import getopt
 
-from gproject.logger import init_logging, init_logging2
-#log = init_logging2('gp.log.yml', 'gp')
-log = init_logging2('gp.log.yml')
+from common import logger
+log = logger.init_logging_yaml('gp.log.yml')
+
 from gproject.gproject import GProject
 from gproject.projects import ProjectList
 
-#from gp_init import repo_root, archive_root, wiki_url
-
 plist = None
 gp = None
-#
-#log = init_logging(fname='gp.log')
-#
-#log = init_logging(fname='gp.log', console_level='debug')
-#
-if False:
-    import  logging, logging.config
-    #logging.config.fileConfig('gp.log.ini')
-    cf = 'gp.log.yml'
-
-    logging.config.fileConfig('gp.log.ini')
-    log = logging.getLogger('|')
-    #log = logging.getLogger()
 
 def show_log(project_name, since=None, summary=True ):
     global plist
 
     gp = plist.get_project();
     if not gp:
-        print("no such project")
+        log.error("no such project")
         return
 
     gp.repo_log(since)
@@ -232,20 +217,34 @@ def show_project(name):
 
 def show_repo(repo_name):
     global plist
-    r = plist.init_repo(repo_name)
 
-    log.info("repo={}  primary? {}  tracking? {}".format(r.name, r.is_primary, r.tracking))
+    r = plist.init_repo(repo_name)
+    log.debug("repo={} dir={} primary? {}  tracking? {}".format(r.name, r.dir, r.is_primary, r.tracking))
     log.debug("{} commits ".format( len(r.commits)))
     print("Repo: %s"  % ( r.name) )
     print("   {}".format(  r.describe() ))
     r.get_tags(True)
     print("tags: ", r.tags)
 
+    if not repo_name in plist.repo_projects:
+        log.error("{} repo not found".format(repo_name))
+        return 1
+    for p in plist.repo_projects[repo_name]:
+        gp = plist.get_project( p )
+        if gp.repo_dir == r.dir:
+            isp = '*'
+        else:
+            isp = ' '
+        log.debug("Project: '{}' d={} primary?{} ".format(p, gp.repo_dir, isp  ))
+        print("  {}  {}".format(isp, p))
 
 def archive_release():
     global plist
 
     gp = plist.get_project()
+    if not gp:
+        log.error("no such project '{} '".format( plist.select_project))
+        return 1
 
     gp.show()
 
@@ -285,8 +284,8 @@ def verify_repo(repo_name):
         gp.show(format='brief')
         ###print("found r=%s" % ( r.name ))
         if r.name == gp.repo_list[0].name:
-            #print("ERROR: is primary repo")
-            log.error("is primary repo, skipping")
+            print("ERROR: is primary repo")
+            #log.error("is primary repo, skipping")
             continue
 
         ready = True
@@ -375,7 +374,6 @@ def main():
     project_name = None
 
     log.info('---------Begins')
-    log.debug('---------Begins')
     try:
         opts,args = getopt.getopt(sys.argv[1:], 'fip:tlsvar:', ['manifest=', 'tag-release', 'verify=', 'test', 'list', 'since=', 'last', 'depends='])
     except getopt.GetoptError as err:

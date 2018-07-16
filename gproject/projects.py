@@ -24,8 +24,9 @@ import subprocess
 
 from ruamel.yaml import YAML
 #import logging
-from .logger import custom_logger
-log = custom_logger( __name__ )
+#from .logger import custom_logger
+from common import logger
+log = logger.get_mod_logger( __name__ )
 
 from .gproject import GProject
 from .repo import Repo
@@ -107,12 +108,14 @@ class ProjectList:
         if 'build_root' in cfg:
             self.build_root = cfg['build_root']
 
+        self.repo_projects = {}
         for p in cfg['projects']:
             if not 'name' in p or not p['name']:
                 log.error("no name in project {} ".format(p))
                 continue
 
             if project_name != None and project_name != p['name']:
+                # filter on project name
                 continue
 
             if  'code' in p:
@@ -133,12 +136,21 @@ class ProjectList:
                 log.debug("{} add repo={}".format(code,r['name']))
                 if 'name' in r:
                     dir = os.path.join(self.repo_root, r['name'])
+                else:
+                    raise Exception("no repo name")
+
+                if not r['name'] in self.repo_projects:
+                    self.repo_projects[ r['name']] = []
+                self.repo_projects[ r['name']].append(gp.name)
+                
+
                 if 'release_path' in r:
                     gp.rel_path = r['release_path']
 
                 tr = False
                 if 'tracking' in r:
                     tr = True
+                log.debug("details={}".format(r))
                 if 'primary' in r:
                     gp.set_primary_repo(dir)
                 else:
