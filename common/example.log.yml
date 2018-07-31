@@ -1,0 +1,38 @@
+version: 1
+log_root: '|'
+formatters:
+  cons:
+    format: '%(name)s,  %(levelname)s - %(message)s'
+  file:
+    format: '%(asctime)s :  %(name)s - %(levelname)s - %(message)s'
+  err:
+    # fails: TypeError: not enough arguments for format string
+    #format: '%(asctime)s : %(message)s IN %(module)s'
+    format: '%(asctime)s - %(levelname)s - %(message)s - IN %(module)s: %(filename)s #%(lineno)s '
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: cons
+    stream: ext://sys.stdout
+  file:
+    class: logging.FileHandler
+    level: DEBUG
+    formatter: file
+    mode: 'w'
+    filename: 'example.log'
+  err:
+    class: logging.FileHandler
+    level: WARN
+    mode: 'a'
+    formatter: err
+    filename: 'err.log'
+loggers:
+  '|':
+    level: DEBUG
+    handlers: [console,file, err]
+    propagate: no
+root:
+  level: DEBUG
+  handlers: [console,file]
