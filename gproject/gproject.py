@@ -314,7 +314,7 @@ class GProject:
                     lfh.write( "\n".join(r.commits) )
                     log.info("wrote: {}".format(f))
             except Exception as err:
-                print("open {} failed: {}".format(f, str(err)))
+                log.error("open {} failed: {}".format(f, str(err)))
 
         # filter_commits()
 
@@ -327,7 +327,7 @@ class GProject:
         issues = {}
         for r in self.repo_list:
             fh.write("{} \n".format( r.name) )
-            print("{}: {} commits".format( r.name,  len(r.commits)) )
+            log.info("{}: {} commits".format( r.name,  len(r.commits)) )
             for c in r.commits:
                 m = filter.match(c)
                 if not m:
@@ -344,7 +344,7 @@ class GProject:
             fh.write("  {}\n".format( m ))
             for c in issues[m]:
                 fh.write("     " + c + "\n")
-        print("wrote: {}".format( f ))
+        log.info("wrote: {}".format( f ))
 
 
     def repo_log(self, since=None, format=None):
@@ -372,8 +372,9 @@ class GProject:
                 r.get_tags()
                 t = self.last_tag
                 if len(r.tags) == 0:
-                    if self.verbose:
-                        print("no tags")
+                    log.debug("no tags")
+                    #if self.verbose:
+                    #    print("no tags")
                     t = 'master'
                 else:
                     #print(r.tags)
@@ -381,12 +382,15 @@ class GProject:
                     #print(tlist)
                     if not self.last_tag in tlist:
                         t = tlist[-1]
-                        if self.verbose:
-                            print( "tag {}not found in repo {}, using {} ".format( self.last_tag, r.name, t))
+                        log.debug( "tag {}not found in repo {}, using {} ".format( self.last_tag, r.name, t))
+
+                        #if self.verbose:
+                        #    print( "tag {}not found in repo {}, using {} ".format( self.last_tag, r.name, t))
 
                 args = ' ' + t + '.. '
-                if self.verbose:
-                    print("since: ", self.last_tag, " args:", args)
+                log.debug("since: {}  arg={}".format(self.last_tag,  args) )
+                #if self.verbose:
+                #    print("since: ", self.last_tag, " args:", args)
 
             r.get_log(args, format)
 

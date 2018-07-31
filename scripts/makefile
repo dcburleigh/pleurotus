@@ -18,6 +18,10 @@ $(DIRS):
 # configuration files
 MF = projects.yml
 
+gp.log.yml: %: $(GPSOURCE)/common/%
+	cp $< $@
+
+
 CONFIG = $(MF) gp.log.yml
 
 $(MF): %: $(ETC)/%
@@ -35,8 +39,8 @@ $(GPFILES): %: $(GPSOURCE)/%
 	cp $< $@
 
 update-gp:
-	rsync -a $(GPSOURCE)/gproject/ gproject/
-	rsync -a $(GPSOURCE)/common/ common/
+	@rsync -a $(GPSOURCE)/gproject/ gproject/
+	@rsync -a $(GPSOURCE)/common/ common/
 
 install-gp: $(DIRS) update-gp $(GPSCRIPTS) $(GPFILES) $(CONFIG)
 
@@ -52,7 +56,7 @@ list-versions: install-gp
 ifneq ($(PROJECTNAME),)
 
 show-project: install-gp
-	python gp.py -p $(PROJECTNAME) -i 
+	python gp.py -p $(PROJECTNAME) -i
 
 show-status: install-gp
 	python gp.py -p $(PROJECTNAME) -s
@@ -73,10 +77,10 @@ verify: install-gp
 	python gp.py -p $(PROJECTNAME) --verify release --manifest $(MF)
 
 archive-release: install-gp
-	python gp.py -p $(PROJECTNAME) -a   --manifest $(MF)
+	python gp.py -p $(PROJECTNAME) -a
 
 tag-release: install-gp
-	python gp.py -p $(PROJECTNAME) --tag-release  --manifest $(MF)
+	python gp.py -p $(PROJECTNAME) --tag-release  
 
 endif
 

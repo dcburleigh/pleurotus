@@ -133,6 +133,10 @@ class Repo:
         return self.git_command_rows('status --short')
 
     def describe(self):
+        d = self.git_command('describe --tags --long ')
+        if not d:
+            return '-no tags-'
+        return d.strip()
         return self.git_command('describe --tags --long ').strip()
 
     def get_commit(self, commit):

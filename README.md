@@ -25,7 +25,8 @@ Edit the YAML-formatted project configuration file, projects.yml.
 
 ### usage
 
-see: pydoc gp
+see:
+    pydoc gp
 
 
 ### Commit a release
@@ -51,7 +52,7 @@ git push --tags
 git checkout develop
 edit release.txt
    increment version
-   
+
 
 
 

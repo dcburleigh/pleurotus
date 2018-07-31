@@ -162,7 +162,7 @@ def show_status(project_name ):
 
     for r in gp.repo_list:
         ufiles = r.get_status()
-        print( "%s: %s files " % ( r.dir, len(ufiles) ))
+        print( "%s: %s uncommitted files " % ( r.dir, len(ufiles) ))
         print( "  {}".format(r.describe()))
         print("    " + "\n    ".join(ufiles))
 
