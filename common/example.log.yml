@@ -21,12 +21,14 @@ handlers:
     level: DEBUG
     formatter: file
     mode: 'w'
+    # EDIT HERE
     filename: 'example.log'
   err:
     class: logging.FileHandler
     level: WARN
     mode: 'a'
     formatter: err
+    # EDIT HERE 
     filename: 'err.log'
 loggers:
   '|':

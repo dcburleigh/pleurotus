@@ -303,7 +303,7 @@ class GProject:
         for r in self.repo_list:
             u = r.get_status()
             if u:
-                log.warn("{} uncommitted files in '{}'' ".format( len(u), r.dir))
+                log.warn("{} uncommitted files in '{}' \n{} ".format( len(u), r.dir, u))
 
             f = os.path.join( self.archive_dir,  r.name + '.txt')
             if os.path.exists(f):
@@ -358,6 +358,8 @@ class GProject:
         if since == 'master':
             args = ' master.. '
         elif since == 'push':
+            # should be 'origin/' + r.current_branch + '.. '
+            #args += ' origin/master.. '
             args += ' origin/develop.. '
         elif since == 'release':
             # TODO: verify each repo has tag
@@ -376,18 +378,24 @@ class GProject:
                     #if self.verbose:
                     #    print("no tags")
                     t = 'master'
+                    # if r.current_branch == 'master'
+                    #t = 'all'
                 else:
                     #print(r.tags)
                     tlist = sorted(r.tags.keys())
                     #print(tlist)
                     if not self.last_tag in tlist:
-                        t = tlist[-1]
+
+                        t = tlist[-1]  # use current tag ?
+                        #t = 'all'  # all commits to date ( )
                         log.debug( "tag {}not found in repo {}, using {} ".format( self.last_tag, r.name, t))
 
                         #if self.verbose:
                         #    print( "tag {}not found in repo {}, using {} ".format( self.last_tag, r.name, t))
 
                 args = ' ' + t + '.. '
+                if t == 'all':
+                    args = ' '
                 log.debug("since: {}  arg={}".format(self.last_tag,  args) )
                 #if self.verbose:
                 #    print("since: ", self.last_tag, " args:", args)
@@ -415,7 +423,8 @@ class GProject:
         for r in self.repo_list:
             # cutoff ( primary /not primary)
             if len(r.commits) > 0:
-                errors.append( str(len(r.commits)) + " commits not pushed to remote in repo " + r.name)
+                #errors.append( str(len(r.commits)) + " commits not pushed to remote in repo " + r.name)
+                errors.append( "{} commits not pushed to remote in repo {} \n commits: {}".format(len(r.commits), r.name, r.commits)  )
 
         self.lookup_tags()
         for r in self.repo_list:

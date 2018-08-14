@@ -127,6 +127,7 @@ class Repo:
         if not format in self.log_format:
             format = 'oneline'
         command = "log "  + log_args + self.log_format[format]
+        log.debug("get commits: {}".format( command ))
         self.commits = self.git_command_rows(command)
 
     def get_status(self):

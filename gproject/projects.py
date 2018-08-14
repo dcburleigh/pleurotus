@@ -142,7 +142,7 @@ class ProjectList:
                 if not r['name'] in self.repo_projects:
                     self.repo_projects[ r['name']] = []
                 self.repo_projects[ r['name']].append(gp.name)
-                
+
 
                 if 'release_path' in r:
                     gp.rel_path = r['release_path']
@@ -152,7 +152,7 @@ class ProjectList:
                     tr = True
                 log.debug("details={}".format(r))
                 if 'primary' in r:
-                    gp.set_primary_repo(dir)
+                    gp.set_primary_repo(dir, r['name'])
                 else:
                     gp.add_repo(dir, tracking=tr)
 
