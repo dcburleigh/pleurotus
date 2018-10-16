@@ -162,7 +162,12 @@ def show_status(project_name ):
 
     for r in gp.repo_list:
         ufiles = r.get_status()
-        print( "%s: %s uncommitted files " % ( r.dir, len(ufiles) ))
+        info = ' '
+        if r.is_primary:
+            info = 'P'
+        elif r.tracking:
+            info = 'T'
+        print( "[%s] %s: %s uncommitted files " % ( info, r.dir, len(ufiles) ))
         print( "  {}".format(r.describe()))
         print("    " + "\n    ".join(ufiles))
 
@@ -170,8 +175,6 @@ def show_status(project_name ):
 def show_tags(project_name ):
     global plist
 
-    ###plist.read()
-    ###print(( "%d projects " % ( plist.num() )))
     gp = plist.get_project(project_name);
     if not gp:
         print("no such project")
@@ -185,7 +188,7 @@ def show_tags(project_name ):
     for r in gp.repo_list:
         print("> %s: (%s): " %  (r.name, r.dir) )
         if len(r.tags) == 0:
-            print("    No releases")
+            print("    No release tags")
 
         for t in gp.taglist:
             if t in r.tags:

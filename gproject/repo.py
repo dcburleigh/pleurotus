@@ -94,6 +94,8 @@ class Repo:
             return
 
         if serr:
+            # TODO: trap 'no names found'
+            
             log.error("git command error: {}".format(serr) )
             #print("err:", serr)
             self.last_error = serr

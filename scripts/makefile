@@ -56,31 +56,34 @@ list-versions: install-gp
 ifneq ($(PROJECTNAME),)
 
 show-project: install-gp
-	python gp.py -p $(PROJECTNAME) -i
+	@python gp.py -p $(PROJECTNAME) -i
 
 show-status: install-gp
-	python gp.py -p $(PROJECTNAME) -s
+	@python gp.py -p $(PROJECTNAME) -s
+
+show-details:  show-status  show-project  show-tags show-log-m
 
 show-tags: install-gp
-	python gp.py -p $(PROJECTNAME) -t  --manifest $(MF)  > t.out
-	cat t.out
+	@python gp.py -p $(PROJECTNAME) -t   > t.out
+	@cat t.out
 
+# all commits since last release (master)
 show-log-m: install-gp
-	python gp.py -p $(PROJECTNAME) -l --since master  --manifest $(MF)  > t.out
-	cat t.out
+	@python gp.py -p $(PROJECTNAME) -l --since master  --manifest $(MF)  > t.out
+	@cat t.out
 
 show-log-rel: install-gp
 		python gp.py -p $(PROJECTNAME) -l --since release  --manifest $(MF)  > t.out
 		cat t.out
 
 verify: install-gp
-	python gp.py -p $(PROJECTNAME) --verify release --manifest $(MF)
+	python gp.py -p $(PROJECTNAME) --verify release 
 
 archive-release: install-gp
 	python gp.py -p $(PROJECTNAME) -a
 
 tag-release: install-gp
-	python gp.py -p $(PROJECTNAME) --tag-release  
+	python gp.py -p $(PROJECTNAME) --tag-release
 
 endif
 

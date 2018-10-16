@@ -28,33 +28,43 @@ Edit the YAML-formatted project configuration file, projects.yml.
 see:
     pydoc gp
 
+### Status
+
+Check status of a project
+
+make show-project PROJECTNAME=...
+
+
 
 ### Commit a release
 
 * commit all changes in primary repo
 * commit ? changes in related repos
 * check
-python gp.py -p PROJECT -i
+make show-details
+
+make verify
 
 * archive
 python gp.py -p PROJECT -a
+    make archive-release
 
 * tag
 python gp.py -p PROJECT --tag-release
+    make tag-release
 
-* next release
+* merge to production
 cd GIT/project
+git checkout master
 git merge develop
 
 git push
 git push --tags
 
+* begin next release
 git checkout develop
 edit release.txt
    increment version
-
-
-
 
 ### Commit secondary repo
 
@@ -69,3 +79,21 @@ edit release.txt
 git flog master..
 * assign previous tag
 git tag  X4.9  <date>
+
+### change tag prefix
+https://stackoverflow.com/questions/1028649/how-do-you-rename-a-git-tag#5719854
+
+old tag prefix is x
+repo has 2 existing release tags,
+   x1.0
+   x1.1
+
+new prefix is y
+* @dev
+  git tag y1.0 x1.0
+  git tag -d  x1.0
+  git push origin :refs/tags/x1.0
+
+
+* @all
+  git pull --prune --tags

@@ -149,12 +149,15 @@ class ProjectList:
 
                 tr = False
                 if 'tracking' in r:
-                    tr = True
+                    if r['tracking']:
+                        tr = True
                 log.debug("details={}".format(r))
                 if 'primary' in r:
                     gp.set_primary_repo(dir, r['name'])
                 else:
                     gp.add_repo(dir, tracking=tr)
+
+
 
             if 'wikipage' in p:
                 gp.set_wiki_pages( p['wikipage'])

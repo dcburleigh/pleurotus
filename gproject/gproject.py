@@ -24,7 +24,7 @@ class GProject:
     built from one or more git repos.
 
     :name: Name
-    :code: abbreviationg
+    :code: abbreviation for project name; also default for ....
     :prefix:  each commit for a release should be of the form <prefix><version>
     :build_path:  local directory where code is deployed
     :rel_path: path from primary repo to directory containing the release file
@@ -122,6 +122,7 @@ class GProject:
         log.debug("add primary name={}".format(name))
         r = Repo(self.repo_dir, self.prefix,name=name)
         r.is_primary = True
+        r.tracking = True
 
         self.repo_list.append(r)
 
@@ -149,11 +150,12 @@ class GProject:
 
         f =  self.repo_dir
         if not os.path.exists(f):
-            logger.info("no such directory '{}' ".format( f ) )
+            log.info("no such directory '{}' ".format( f ) )
             return
 
         if self.rel_path:
             f = os.path.join(f, self.rel_path)
+        #log.info("path={} dir={}".format(self.rel_path, f))
 
         if not os.path.exists(f):
             logger.error("no such directory '{}' ".format( f ) )
@@ -416,16 +418,22 @@ class GProject:
             ufiles = r.get_status()
             # cutoff ( primary /not primary)
             if len(ufiles) > 0:
-                #errors.append( str(len(ufiles)) + " uncommitted files in repo " + r.name)
-                errors.append( "{} uncommitted files in repo ".format( len(ufiles), r.name) )
+                if r.is_primary or r.tracking:
+                    #errors.append( str(len(ufiles)) + " uncommitted files in repo " + r.name)
+                    errors.append( "{} uncommitted files in repo {}".format( len(ufiles), r.name) )
+                else:
+                    log.warn("{} uncommitted files in repo {}".format( len(ufiles), r.name) )
 
         self.repo_log(since='push')
         for r in self.repo_list:
             # cutoff ( primary /not primary)
             if len(r.commits) > 0:
-                #errors.append( str(len(r.commits)) + " commits not pushed to remote in repo " + r.name)
-                errors.append( "{} commits not pushed to remote in repo {} \n commits: {}".format(len(r.commits), r.name, r.commits)  )
-
+                if r.is_primary or r.tracking:
+                    #errors.append( str(len(r.commits)) + " commits not pushed to remote in repo " + r.name)
+                    errors.append( "{} commits not pushed to remote in repo {} \n commits: {}".format(len(r.commits), r.name, r.commits)  )
+                else:
+                    log.warn( "{} commits not pushed to remote in repo {} \n commits: {}".format(len(r.commits), r.name, r.commits)  )
+                    
         self.lookup_tags()
         for r in self.repo_list:
             #print("tags " + "\n". join(r.tags.keys() ))
