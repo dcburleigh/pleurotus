@@ -1,6 +1,5 @@
 # Installation
 
-
 ## Prerequisites
 
 * Git
@@ -21,6 +20,8 @@ edit makefile.conf
 
 make install-gp
 
+make setup-python 
+
 ## Configuration
 
 edit ETC/projects.yml
@@ -32,3 +33,5 @@ see projects.example.yml for details
 make gp-doc
 
 python example.py
+
+make list-projects 

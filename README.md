@@ -1,5 +1,7 @@
 # pleurotus
-Manage a collection of repos related to a projects
+Manage a collection of repos related to a project. 
+
+Provide an opionated control of releases.
 
 ## Description
 
@@ -23,7 +25,7 @@ Edit the YAML-formatted project configuration file, projects.yml.
 
 (see the example in scripts/projects.example.yml)
 
-### usage
+## usage
 
 see:
     pydoc gp
@@ -45,14 +47,14 @@ make show-details
 
 make verify
 
-* archive
-python gp.py -p PROJECT -a
-    make archive-release
+* archive commit logs 
+    make archive-release 
+       python gp.py -p PROJECT -a
 
 * tag
-python gp.py -p PROJECT --tag-release
     make tag-release
-
+         python gp.py -p PROJECT --tag-release
+    
 * merge to production
 cd GIT/project
 git checkout master

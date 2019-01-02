@@ -2,7 +2,12 @@
 REPOROOT =
 ETC = /usr/local/etc/deldev
 
-PYDOC = python -m pydoc
+PYTHON=/usr/local/bin/python3
+PIP=/usr/local/bin/pip3
+
+PYDOC = $(PYTHON) -m pydoc
+
+#SHELL=/bin/bash
 
 -include makefile.conf
 
@@ -44,46 +49,50 @@ update-gp:
 
 install-gp: $(DIRS) update-gp $(GPSCRIPTS) $(GPFILES) $(CONFIG)
 
-setup-python: requirements.txt
-	pip install -r requirements.txt
+python-version: 
+	@$(PYTHON) --version | grep 3.7
+
+
+setup-python: requirements.txt  python-version 
+	$(PIP) install -r requirements.txt
 
 
 # ................................................................
 
 list-versions: install-gp
-	python gp.py --list -v  --manifest $(MF)
+	$(PYTHON) gp.py --list -v  --manifest $(MF)
 
 ifneq ($(PROJECTNAME),)
 
 show-project: install-gp
-	@python gp.py -p $(PROJECTNAME) -i
+	@$(PYTHON) gp.py -p $(PROJECTNAME) -i
 
 show-status: install-gp
-	@python gp.py -p $(PROJECTNAME) -s
+	@$(PYTHON) gp.py -p $(PROJECTNAME) -s
 
 show-details:  show-status  show-project  show-tags show-log-m
 
 show-tags: install-gp
-	@python gp.py -p $(PROJECTNAME) -t   > t.out
+	@$(PYTHON) gp.py -p $(PROJECTNAME) -t   > t.out
 	@cat t.out
 
 # all commits since last release (master)
 show-log-m: install-gp
-	@python gp.py -p $(PROJECTNAME) -l --since master  --manifest $(MF)  > t.out
+	@$(PYTHON) gp.py -p $(PROJECTNAME) -l --since master  --manifest $(MF)  > t.out
 	@cat t.out
 
 show-log-rel: install-gp
-		python gp.py -p $(PROJECTNAME) -l --since release  --manifest $(MF)  > t.out
+		$(PYTHON) gp.py -p $(PROJECTNAME) -l --since release  --manifest $(MF)  > t.out
 		cat t.out
 
 verify: install-gp
-	python gp.py -p $(PROJECTNAME) --verify release 
+	$(PYTHON) gp.py -p $(PROJECTNAME) --verify release 
 
 archive-release: install-gp
-	python gp.py -p $(PROJECTNAME) -a
+	$(PYTHON) gp.py -p $(PROJECTNAME) -a
 
 tag-release: install-gp
-	python gp.py -p $(PROJECTNAME) --tag-release
+	$(PYTHON) gp.py -p $(PROJECTNAME) --tag-release
 
 endif
 

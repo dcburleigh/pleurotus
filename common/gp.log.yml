@@ -28,11 +28,14 @@ handlers:
     mode: 'a'
     formatter: err
     filename: 'err.log'
+    ###propagate: yes 
 loggers:
   '|':
     level: DEBUG
     handlers: [console,file, err]
-    propagate: no
+    #propagate: yes
 root:
   level: DEBUG
-  handlers: [console,file]
+  # ??? creates duplicate messages 
+  #handlers: [console,file]
+  #handlers: [err]

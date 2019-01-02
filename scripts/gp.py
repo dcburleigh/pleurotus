@@ -257,6 +257,27 @@ def archive_release():
     gp.archive_release()
 
 
+def merge_release(): 
+    global plist 
+    gp = plist.get_project()
+    if not gp:
+        log.error("no such project '{} '".format( plist.select_project))
+        return 1
+
+    #gp.show()
+
+    for r in gp.repo_list:
+        ufiles = r.get_status()
+        info = ' '
+        if r.is_primary:
+            info = 'P'
+        elif r.tracking:
+            info = 'T'
+        print( "[%s] %s: %s uncommitted files " % ( info, r.dir, len(ufiles) ))
+        print( "  {}".format(r.describe()))
+        print("    " + "\n    ".join(ufiles))
+        
+    
 def verify_repo(repo_name):
     """ verify that this repo can be merged to production
     :repo_name:  name of a secondary repo

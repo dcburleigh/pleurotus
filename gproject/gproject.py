@@ -344,6 +344,8 @@ class GProject:
 
         for m in sorted(issues):
             fh.write("  {}\n".format( m ))
+            # TODO: lookup issue 
+            #   print issue title, status, category
             for c in issues[m]:
                 fh.write("     " + c + "\n")
         log.info("wrote: {}".format( f ))
@@ -442,6 +444,7 @@ class GProject:
 
             if not self.last_tag in r.tags.keys():
                 #errors.append('%s is missing last tag, %s ' % ( r.name, self.last_tag) )
+                print("{} missing tag: ".format(r.name) )
                 log.info('{} is missing last tag, {}'.format( r.name, self.last_tag) )
 
         if errors:
