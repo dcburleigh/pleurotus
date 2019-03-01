@@ -38,7 +38,7 @@ gp.py -p <Project Name > <project options>
 
 Repo Information
 
-gp.py -d <Repo Name>   <repo options >
+gp.py --d <Repo Name>   <repo options >
 
     show information about all projects related to this repo
 

@@ -43,21 +43,25 @@ make show-project PROJECTNAME=...
 * commit all changes in primary repo
 * commit ? changes in related repos
 * check
+
 make show-details
 
 make verify
 
 * archive commit logs 
-    make archive-release 
-       python gp.py -p PROJECT -a
+    
+make archive-release 
 
 * tag
-    make tag-release
-         python gp.py -p PROJECT --tag-release
-    
+
+make tag-release
+        
 * merge to production
+
 cd GIT/project
+
 git checkout master
+
 git merge develop
 
 git push

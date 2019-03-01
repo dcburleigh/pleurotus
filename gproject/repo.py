@@ -39,6 +39,8 @@ class Repo:
     max_ufiles_primary = 0
     max_ufiles_associated = 2
 
+    commit_range = ''
+
     def __init__(self, dir=None, prefix=None, name=None):
 
         self.tags = {}
@@ -95,7 +97,7 @@ class Repo:
 
         if serr:
             # TODO: trap 'no names found'
-            
+
             log.error("git command error: {}".format(serr) )
             #print("err:", serr)
             self.last_error = serr
@@ -113,7 +115,7 @@ class Repo:
             elif nc == 1:
                 print( "    {} ".format( self.commits[0]))
             else:
-                print("    {} commits ".format( nc) )
+                print("    {} commits in {} ".format( nc, self.commit_range, ) )
                 print( "    {}\n    {} ".format( self.commits[0], self.commits[-1]))
             return
 
@@ -124,12 +126,12 @@ class Repo:
 
 
     def get_log(self, log_args='', format='oneline'):
-        args = ''
         #command = "log "  + log_args + self.log_format_oneline
         if not format in self.log_format:
             format = 'oneline'
         command = "log "  + log_args + self.log_format[format]
         log.debug("get commits: {}".format( command ))
+        self.commit_range = log_args
         self.commits = self.git_command_rows(command)
 
     def get_status(self):

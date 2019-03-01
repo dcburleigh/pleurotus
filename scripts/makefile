@@ -43,7 +43,7 @@ GPFILES = LICENSE requirements.txt
 $(GPFILES): %: $(GPSOURCE)/%
 	cp $< $@
 
-update-gp:
+update-gp: $(MF)
 	@rsync -a $(GPSOURCE)/gproject/ gproject/
 	@rsync -a $(GPSOURCE)/common/ common/
 

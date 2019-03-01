@@ -344,7 +344,7 @@ class GProject:
 
         for m in sorted(issues):
             fh.write("  {}\n".format( m ))
-            # TODO: lookup issue 
+            # TODO: lookup issue
             #   print issue title, status, category
             for c in issues[m]:
                 fh.write("     " + c + "\n")
@@ -378,7 +378,7 @@ class GProject:
                 r.get_tags()
                 t = self.last_tag
                 if len(r.tags) == 0:
-                    log.debug("no tags")
+                    log.debug("no tags, default to master")
                     #if self.verbose:
                     #    print("no tags")
                     t = 'master'
@@ -404,6 +404,7 @@ class GProject:
                 #if self.verbose:
                 #    print("since: ", self.last_tag, " args:", args)
 
+            log.debug("log args: " + args)
             r.get_log(args, format)
 
 
@@ -435,7 +436,7 @@ class GProject:
                     errors.append( "{} commits not pushed to remote in repo {} \n commits: {}".format(len(r.commits), r.name, r.commits)  )
                 else:
                     log.warn( "{} commits not pushed to remote in repo {} \n commits: {}".format(len(r.commits), r.name, r.commits)  )
-                    
+
         self.lookup_tags()
         for r in self.repo_list:
             #print("tags " + "\n". join(r.tags.keys() ))
