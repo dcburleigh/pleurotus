@@ -26,8 +26,11 @@ MF = projects.yml
 gp.log.yml: %: $(GPSOURCE)/common/%
 	cp $< $@
 
+log.yml:$(GPSOURCE)/common/gp.log.yml 
+	cp $< $@
 
 CONFIG = $(MF) gp.log.yml
+CONFIG = $(MF) log.yml
 
 $(MF): %: $(ETC)/%
 	cp $< $@
