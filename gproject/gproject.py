@@ -23,7 +23,7 @@ class GProject:
     """ represent a project
     built from one or more git repos.
 
-    :name: Name
+    :name: Name of project (typically the name of the primary repo)
     :code: abbreviation for project name; also default for ....
     :prefix:  each commit for a release should be of the form <prefix><version>
     :build_path:  local directory where code is deployed
@@ -44,8 +44,7 @@ class GProject:
 
         self.name = name
 
-        # primary repo
-        self.repo_dir = ''
+        self.repo_dir = ''  # full path to primary repo
         # related
         self.repo_list = []
         self.project_tags = {}
@@ -65,6 +64,8 @@ class GProject:
         self.relnotes_page = None
         self.relnotes_url = None
         self.last_tag = None
+        self.last_release_date = None  # date of last release (or master)
+        self.last_release_commit = None  # hash of commit of last release (or master)
         self.next_tag = None
 
         if code:
@@ -221,9 +222,25 @@ class GProject:
         #self.last_tag = "%s%s" % ( self.prefix, self.last_release)
         self.last_tag = self.prefix + self.last_release
 
+    def set_last_release_info(self):
+        # get primary
+        if self.last_tag:
+            t = self.last_tag
+        else:
+            t = 'master'
+
+        for r in self.repo_list:
+            if r.is_primary:
+                info  = r.get_commit_info( t )
+                log.debug("tag=%s  info=%s" % ( t, info ))
+                self.last_release_date = info['date']
+                self.last_release_commit = info['hash']
+                return
+
     def show(self, since=None, format='all'):
         """ display most details about this project """
 
+        self.set_last_release_info()
         print ( "Project: {} [ {} ]  [tag: {}] ".format( self.name, self.code, self.prefix))
         #print ( "tag prefix: %s " % ( self.prefix))
 
@@ -241,7 +258,7 @@ class GProject:
             t = self.last_tag
         else:
             t = '???'
-        print ( "    Last release: {} ".format( t ))
+        print ( "    Last release: {}, date={} commit={} ".format( t, self.last_release_date, self.last_release_commit  ))
         print( "\n")
 
         if since:
@@ -352,12 +369,13 @@ class GProject:
 
 
     def repo_log(self, since=None, format=None):
-        """ get commits logs since ...
+        """ get commit logs since ...
 
         :since; [ master | push | release ]
         :format: ?
         """
 
+        log.info("get repo log")
         args = '';
         if since == 'master':
             args = ' master.. '
@@ -374,30 +392,33 @@ class GProject:
                 args = ' master.. '
 
         for r in self.repo_list:
+            since_date = None
             if since == 'release':
                 r.get_tags()
                 t = self.last_tag
-                if len(r.tags) == 0:
-                    log.debug("no tags, default to master")
-                    #if self.verbose:
-                    #    print("no tags")
-                    t = 'master'
-                    # if r.current_branch == 'master'
-                    #t = 'all'
+                # TODO
+                #  identify most recent tag for this prefix
+                t0 = None
+                tlist = r.taglist()
+                if tlist:
+                    t0 = tlist[0]
+                log.debug("%d tags matching %s, t0=%s"  % ( len(tlist), self.prefix,  t0))
+
+                if t in r.tags:
+                    # since last release
+                    args = ' ' + t + '.. '
+                elif t0:
+                    # last release not tagged for this
+                    #  use most recent release of this project
+                    log.debug("tag %s not found, use %s" %( t, t0))
+                    args = ' ' + t0 + '.. '
+                elif self.last_release_date:
+                    log.debug("no tags found, use data of last release ")
+                    args = ' --since=' + self.last_release_date
                 else:
-                    #print(r.tags)
-                    tlist = sorted(r.tags.keys())
-                    #print(tlist)
-                    if not self.last_tag in tlist:
+                    print("no date or tag")
+                    args = ' master..'
 
-                        t = tlist[-1]  # use current tag ?
-                        #t = 'all'  # all commits to date ( )
-                        log.debug( "tag {}not found in repo {}, using {} ".format( self.last_tag, r.name, t))
-
-                        #if self.verbose:
-                        #    print( "tag {}not found in repo {}, using {} ".format( self.last_tag, r.name, t))
-
-                args = ' ' + t + '.. '
                 if t == 'all':
                     args = ' '
                 log.debug("since: {}  arg={}".format(self.last_tag,  args) )

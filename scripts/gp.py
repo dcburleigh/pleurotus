@@ -216,6 +216,7 @@ def show_project(name):
         log.error( "no such project: %s " % ( name ))
         return
 
+    #gp.set_start_date()
     gp.show('release')
 
 def show_repo(repo_name):
@@ -257,8 +258,8 @@ def archive_release():
     gp.archive_release()
 
 
-def merge_release(): 
-    global plist 
+def merge_release():
+    global plist
     gp = plist.get_project()
     if not gp:
         log.error("no such project '{} '".format( plist.select_project))
@@ -276,8 +277,8 @@ def merge_release():
         print( "[%s] %s: %s uncommitted files " % ( info, r.dir, len(ufiles) ))
         print( "  {}".format(r.describe()))
         print("    " + "\n    ".join(ufiles))
-        
-    
+
+
 def verify_repo(repo_name):
     """ verify that this repo can be merged to production
     :repo_name:  name of a secondary repo

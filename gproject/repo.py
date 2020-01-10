@@ -29,6 +29,8 @@ class Repo:
     show_format_brief1 =  ' -s  --pretty="format:%ci %d %h %b" '
     show_format_brief2 =  ' -s  --pretty="format:%cD %d %h %b" '
     show_format_brief =  ' -s --date=short  --pretty="format:%cd (%cr) %d %h %b" '
+    show_format_dc =  ' -s --date=short  --pretty="format:date=%cd commit=%h " '
+    format_dc_pattern = re.compile('date=(\S+) commit=(\S+)')
 
     dir_name_pattern  = re.compile('.*/([^\/]+)$')
     #dir_name_pattern  = re.compile('([a-z\-\_]+)$')
@@ -126,6 +128,7 @@ class Repo:
 
 
     def get_log(self, log_args='', format='oneline'):
+        """get commit log"""
         #command = "log "  + log_args + self.log_format_oneline
         if not format in self.log_format:
             format = 'oneline'
@@ -147,6 +150,21 @@ class Repo:
     def get_commit(self, commit):
         return self.git_command( 'show ' + commit + ' ' + self.show_format_brief)
         #return self.git_command( 'show ' + commit + ' -s  --pretty="format:%ci {} %h %b" ')
+
+    def get_commit_info(self, commit):
+        c =  self.git_command( 'show ' + commit + ' ' + self.show_format_dc)
+        info = {'date': None, 'hash': None}
+        if not c:
+            return info
+
+        m = self.format_dc_pattern.match(c)
+        if m:
+            info['date'] = m.group(1)
+            info['hash'] = m.group(2)
+        else:
+            log.error("can't parse commit %s" %( c))
+
+        return info
 
     def taglist(self):
         return sorted(self.tags.keys(), reverse=True)

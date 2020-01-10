@@ -41,7 +41,7 @@ GPSCRIPTS = gp.py makefile  example.py projects.example.yml
 $(GPSCRIPTS): %: $(GPSOURCE)/scripts/%
 	cp $< $@
 
-GPFILES = LICENSE requirements.txt
+GPFILES = LICENSE requirements.txt  NEXTRELEASE.md 
 
 $(GPFILES): %: $(GPSOURCE)/%
 	cp $< $@
@@ -49,6 +49,8 @@ $(GPFILES): %: $(GPSOURCE)/%
 update-gp: $(MF)
 	@rsync -a $(GPSOURCE)/gproject/ gproject/
 	@rsync -a $(GPSOURCE)/common/ common/
+
+update-files: update-gp $(GPFILES) 
 
 install-gp: $(DIRS) update-gp $(GPSCRIPTS) $(GPFILES) $(CONFIG)
 
