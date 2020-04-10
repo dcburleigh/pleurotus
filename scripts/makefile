@@ -23,10 +23,7 @@ $(DIRS):
 # configuration files
 MF = projects.yml
 
-gp.log.yml: %: $(GPSOURCE)/common/%
-	cp $< $@
-
-log.yml:$(GPSOURCE)/common/gp.log.yml 
+log.yml: $(GPSOURCE)/common/gp.log.yml
 	cp $< $@
 
 CONFIG = $(MF) gp.log.yml
@@ -41,7 +38,7 @@ GPSCRIPTS = gp.py makefile  example.py projects.example.yml
 $(GPSCRIPTS): %: $(GPSOURCE)/scripts/%
 	cp $< $@
 
-GPFILES = LICENSE requirements.txt  NEXTRELEASE.md 
+GPFILES = LICENSE requirements.txt  NEXTRELEASE.md
 
 $(GPFILES): %: $(GPSOURCE)/%
 	cp $< $@
@@ -50,17 +47,15 @@ update-gp: $(MF)
 	@rsync -a $(GPSOURCE)/gproject/ gproject/
 	@rsync -a $(GPSOURCE)/common/ common/
 
-update-files: update-gp $(GPFILES) 
+update-files: update-gp $(GPFILES)
 
 install-gp: $(DIRS) update-gp $(GPSCRIPTS) $(GPFILES) $(CONFIG)
 
-python-version: 
+python-version:
 	@$(PYTHON) --version | grep 3.7
 
-
-setup-python: requirements.txt  python-version 
+setup-python: requirements.txt  python-version
 	$(PIP) install -r requirements.txt
-
 
 # ................................................................
 
@@ -91,7 +86,7 @@ show-log-rel: install-gp
 		cat t.out
 
 verify: install-gp
-	$(PYTHON) gp.py -p $(PROJECTNAME) --verify release 
+	$(PYTHON) gp.py -p $(PROJECTNAME) --verify release
 
 archive-release: install-gp
 	$(PYTHON) gp.py -p $(PROJECTNAME) -a

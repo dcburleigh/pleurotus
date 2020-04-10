@@ -76,8 +76,9 @@ import sys
 import re
 import getopt
 
-from common import logger
-log = logger.init_logging_yaml('gp.log.yml')
+#from common import logger
+#log = logger.init_logging_yaml('gp.log.yml')
+from common import log
 
 from gproject.gproject import GProject
 from gproject.projects import ProjectList
@@ -94,12 +95,12 @@ def show_log(project_name, since=None, summary=True ):
         return
 
     gp.repo_log(since)
-
+    nr = 0
     for r in gp.repo_list:
+        nr += 1
         print("%s " % r.name )
-
         r.list_commits('all')
-
+    log.info(f"{nr} repos") 
 
 # TODO:
 #  merge_dev_prod
