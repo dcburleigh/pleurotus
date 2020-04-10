@@ -1,41 +1,61 @@
 # Next release
 
-## merge to production 
+## merge to production
 
 * commit all changes to develop
 
 * edit makefile.conf
-  set PROJECTNAME 
+  set PROJECTNAME
 
-make show-project 
+## preview
 
-make show-status 
+make show-project
 
-make show-tags 
+make show-status
+  commit any uncommitted files for P or T repos
 
-make archive-release 
+make show-tags
 
-make tag-release 
+## document
+
+make archive-release
+
+review files in GL/<tag>/<version>
+
+* mantis.txt
+  update related wiki pages,
+  set status to Prod
+
+## merge
+
+make tag-release
+
+* primary repos
 
 cd GIT/<REPO>
 
-git checkout master 
+git checkout master
 
-git merge develop 
+git merge develop
 
-git push 
+git push
 
-git push --tags 
+git push --tags
 
-## next release 
+* tracking repos
+
+* related
+?
+
+## document
+
+update wiki
+
+
+## next release
+
+* primary
 
 git checkout develop
 
-edit release.txt 
-
-
-
-
-
-
-
+edit release.txt

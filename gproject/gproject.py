@@ -439,7 +439,7 @@ class GProject:
     def verify_release(self):
         errors = []
         for r in self.repo_list:
-            ufiles = r.get_status()
+            ufiles = r.list_uncommitted()
             # cutoff ( primary /not primary)
             if len(ufiles) > 0:
                 if r.is_primary or r.tracking:

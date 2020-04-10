@@ -120,7 +120,7 @@ def tag_release(project_name):
     # TODO: primary-only
     rv = gp.verify_release()
     if not rv:
-        print("not ready")
+        print("***** not ready **** ")
         return
 
     print( "Release '%s' is ready" % ( gp.next_tag))
