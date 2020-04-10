@@ -2,18 +2,14 @@
 
     in main:
 
-from common import logger
-log = logger.init_logging_yaml( 'path/to/config.yml')
-
+from common import log
 
     in modules:
 
-from .common import logger
+from common import logger
 log = logger_get_mod_logger(__name__)
 
-
 """
-
 import logging
 import logging.config
 #import sys
@@ -27,13 +23,12 @@ def get_mod_logger(mod_name=None):
     """return a logger object for each module in a project"""
 
     if mod_name:
+        # module: a.b.c
+        #  log name:  <root>.c
         name = mod_name.split('.')[-1]
         log_name = '{}.{}'.format( log_root, name )
-        #log_name = name
-        #log_name = log_root
     else:
         log_name = log_root
-        name = '-'
     #print("logger='{}'  mod={} name={}".format(log_name, mod_name, name))
     return logging.getLogger(log_name)
 
