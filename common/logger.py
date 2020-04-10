@@ -2,13 +2,13 @@
 
     in main:
 
-from common import logger 
+from common import logger
 log = logger.init_logging_yaml( 'path/to/config.yml')
 
 
     in modules:
 
-from import logger
+from .common import logger
 log = logger_get_mod_logger(__name__)
 
 

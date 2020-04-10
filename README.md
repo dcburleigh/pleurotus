@@ -1,5 +1,5 @@
 # pleurotus
-Manage a collection of repos related to a project. 
+Manage a collection of repos related to a project.
 
 Provide an opionated control of releases.
 
@@ -25,7 +25,7 @@ Edit the YAML-formatted project configuration file, projects.yml.
 
 (see the example in scripts/projects.example.yml)
 
-## usage
+## Usage
 
 see:
     pydoc gp
@@ -36,6 +36,36 @@ Check status of a project
 
 make show-project PROJECTNAME=...
 
+Key:
+
+P: primary
+T: tracking
+.: related b
+
+* example
+
+Current release for project 'APT'.
+The primary repo, 'webroot', has 73 commits since the last production release,
+  which was  April 4, 2019.
+  
+~~~
+Project: APT [ apt ]  [tag: apt]
+    Current release: 5.3
+    beta: apt5.3
+    Last release: apt5.2
+
+
+P webroot     : /Users/a2474/git/webroot
+    73 commits in  apt5.2..  
+    2020-04-02 4cd8ec1 | fix
+    2019-04-14 f70eeca | next APT release
+T gentools    : /Users/a2474/git/gentools
+    46 commits in  apt5.2..  
+    2020-03-30 62d7e74 | sb to sbx
+    2019-04-01 cfc9df7 | get ucxntools
+
+
+~~~
 
 
 ### Commit a release
@@ -48,14 +78,14 @@ make show-details
 
 make verify
 
-* archive commit logs 
-    
-make archive-release 
+* archive commit logs
+
+make archive-release
 
 * tag
 
 make tag-release
-        
+
 * merge to production
 
 cd GIT/project

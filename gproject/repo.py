@@ -134,8 +134,21 @@ class Repo:
         self.commit_range = log_args
         self.commits = self.git_command_rows(command)
 
+    def is_clean(self):
+        s = self.git_command_rows('status --short  ')
+        if s:
+            return False
+        else:
+            return True
+
+    def list_uncommitted(self):
+        return self.git_command_rows('status --short  ')
+
     def get_status(self):
-        return self.git_command_rows('status --short')
+        # TODO:
+        # s = self.git_command_rows(status --porcelein=2 --branch )
+        #
+        return self.git_command_rows('status --short --branch ')
 
     def describe(self):
         d = self.git_command('describe --tags --long ')
@@ -195,7 +208,8 @@ class Repo:
 
         ok = True
         warnings = ''
-        ufiles = self.get_status()
+        ufiles = self.git_command_rows('status --short ')
+        log.debug(f"got status={ufiles}")
         nu = len(ufiles)
         if nu:
             log.warn("{} uncommitted files in primary: {} ".format( nu, self.name ))
