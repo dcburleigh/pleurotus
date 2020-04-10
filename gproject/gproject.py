@@ -16,6 +16,8 @@ import csv
 
 from common import logger
 log = logger.get_mod_logger( __name__ )
+#from common import log
+
 #import subprocess
 from .repo import Repo
 
