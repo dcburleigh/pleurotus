@@ -75,10 +75,12 @@ Log Range Options
 import sys
 import re
 import getopt
+import argparse
 
-#from common import logger
-#log = logger.init_logging_yaml('gp.log.yml')
-from common import log
+from common import logger
+log = logger.get_mod_logger()
+#log = logger.init_logging_yaml()
+###from common import log
 
 from gproject.gproject import GProject
 from gproject.projects import ProjectList
@@ -100,7 +102,7 @@ def show_log(project_name, since=None, summary=True ):
         nr += 1
         print("%s " % r.name )
         r.list_commits('all')
-    log.info(f"{nr} repos") 
+    log.info(f"{nr} repos")
 
 # TODO:
 #  merge_dev_prod
@@ -134,19 +136,19 @@ def tag_release(project_name):
 
 def verify_release(project_name):
     global plist
-
     plist.read()
 
     gp = plist.get_project(project_name);
     if not gp:
-        print("no such project")
+        log.error("no such project")
         return
     ##print("verify")
     rv = gp.verify_release()
     if not rv:
-        print("_______not ready")
+        print("_______not ready_______")
         return
 
+    log.info( "Release '%s' is ready" % ( gp.next_tag))
     print( "Release '%s' is ready" % ( gp.next_tag))
     print("OK!")
 
@@ -161,16 +163,24 @@ def show_status(project_name ):
         log.info("no such project")
         return
 
+    np = 0
+    nt = 0
+    no = 0
     for r in gp.repo_list:
         ufiles = r.get_status()
         info = ' '
         if r.is_primary:
             info = 'P'
+            np += 1
         elif r.tracking:
             info = 'T'
+            nt += 1
+        else:
+            no += 1
         print( "[%s] %s: %s uncommitted files " % ( info, r.dir, len(ufiles) ))
         print( "  {}".format(r.describe()))
         print("    " + "\n    ".join(ufiles))
+        log.info(f"{np} Primary, {nt} Tracking, {no} Other" )
 
 
 def show_tags(project_name ):
@@ -209,14 +219,15 @@ def show_tags(project_name ):
 
     return
 
-def show_project(name):
+def show_project(name=None):
     global plist
 
-    gp = plist.get_project(name);
+    gp = plist.get_project();
     if not gp:
         log.error( "no such project: %s " % ( name ))
         return
 
+    log.info(f"project={plist.select_project} " )
     #gp.set_start_date()
     gp.show('release')
 
@@ -398,6 +409,81 @@ def main():
     manifest = None
     manifest = 'projects.yml'
     project_name = None
+    log.info('---------Begins')
+
+    parser = argparse.ArgumentParser()
+    #parser.add_argument("echo")
+    parser.add_argument("-a","--archive", help="Action: archive commit log", action="store_true")
+    parser.add_argument( "--verify", help="Action: verify- specify release,  ")
+    parser.add_argument( "--tag_release", help="Action: git tag all repos in project ")
+
+    parser.add_argument("-t","--show-tags", help="Action: list git tags", action="store_true")
+    parser.add_argument("-i","--show-info", help="Action: list git tags", action="store_true")
+    parser.add_argument("-l","--show-logs", help="Action: list git tags", action="store_true")
+    parser.add_argument("-s","--show-status", help="Action: show project status ", action="store_true")
+    parser.add_argument("-v","--list-versions", help="Action: list release version for all projects in manifest", action="store_true")
+    parser.add_argument( "--list", help="Action: list all projects ", action="store_true")
+
+    parser.add_argument("-p", "--project", help="Project name ")
+    parser.add_argument("-r", "--repo", help="Repo name ")
+    parser.add_argument("-m", "--manifest", help="Manifest file ")
+    parser.add_argument( "--since", help="since option: master, push, release ")
+    parser.add_argument("-f","--force", help="force update", action="store_true")
+    args = parser.parse_args()
+
+    if args.manifest:
+        manifest = args.manifest
+    if args.project:
+        project_name = args.project
+
+    plist = ProjectList(manifest, select_project=project_name)
+
+    if args.archive:
+        archive_release()
+    if args.tag_release:
+        tag_release()
+
+    # validate
+    since_date = None
+    if args.since:
+        since_date = args.since
+        if args.since == 'push':
+            pass
+        elif args.since == 'release':
+            pass
+        elif args.since == 'master':
+            pass
+        else:
+            log.error(f"invalid since date={since_date} ")
+            return
+
+    if args.list:
+        if args.list_versions:
+            list_all('versions')
+        else:
+            list_all()
+    elif args.show_info:
+        show_project(  )
+    elif args.show_status:
+        show_status(project_name)
+    elif args.show_logs:
+        show_log(project_name, since=args.since)
+    elif args.verify:
+        if args.verify == 'repo':
+            verify_repo(project_name)
+        elif args.verify == 'release':
+            verify_release(project_name)
+        else:
+            log.error(f"invalid release {args.verify}")
+
+def main1():
+    global gp, plist
+    action = None
+    since = None
+    repo_name = None
+    manifest = None
+    manifest = 'projects.yml'
+    project_name = None
 
     log.info('---------Begins')
     try:
@@ -501,4 +587,6 @@ def main():
 
 if __name__ == '__main__':
     status = main()
+    #print(f"wrote: {logger.log_file} ")
+    print("wrote: "  + ", ".join(logger.files)  )
     sys.exit(status)

@@ -151,6 +151,7 @@ class Repo:
         # TODO:
         # s = self.git_command_rows(status --porcelein=2 --branch )
         #
+        #log.err("got here")
         return self.git_command_rows('status --short --branch ')
 
     def describe(self):
@@ -184,6 +185,11 @@ class Repo:
         #tlist = sorted(self.tags, key=self.tags.get)
         #print("tlist", tlist)
         #return sorted(tlist)
+
+    def last_tag(self):
+        self.get_tags()
+        t = sorted(self.tags.keys(), reverse=True)
+        return t[0]
 
     def get_tags(self, all=False):
         """ get commit tags

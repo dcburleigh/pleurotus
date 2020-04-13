@@ -9,6 +9,9 @@ PYDOC = $(PYTHON) -m pydoc
 
 #SHELL=/bin/bash
 
+L =
+#L = LOG_CONFIG=gp_log.yml
+
 -include makefile.conf
 
 # ................................................................
@@ -60,36 +63,48 @@ setup-python: requirements.txt  python-version
 # ................................................................
 
 list-versions: install-gp
-	$(PYTHON) gp.py --list -v  --manifest $(MF)
+	@$(L) $(PYTHON) gp.py --list -v
+
+list-all: install-gp
+	@$(L) $(PYTHON) gp.py --list
 
 ifneq ($(PROJECTNAME),)
 
 show-project: install-gp
-	@$(PYTHON) gp.py -p $(PROJECTNAME) -i
+	$(L) $(PYTHON) gp.py -p $(PROJECTNAME) -i
+
+show1: install-gp
+	@$(L) $(PYTHON) gp.py -p $(PROJECTNAME) -i
+	ls -l gproject.log gperr.log
 
 show-status: install-gp
-	@$(PYTHON) gp.py -p $(PROJECTNAME) -s
+	@$(L) $(PYTHON) gp.py -p $(PROJECTNAME) -s
 
 show-details:  show-status  show-project  show-tags show-log-m
 
 show-tags: install-gp
-	@$(PYTHON) gp.py -p $(PROJECTNAME) -t   > t.out
+	@$(L)  $(PYTHON) gp.py -p $(PROJECTNAME) -t   > t.out
 	@cat t.out
 
 # all commits since last release (master)
 show-log-m: install-gp
-	@$(PYTHON) gp.py -p $(PROJECTNAME) -l --since master  --manifest $(MF)  > t.out
+	@$(L) $(PYTHON) gp.py -p $(PROJECTNAME) -l --since master  --manifest $(MF)  > t.out
 	@cat t.out
 
 show-log-rel: install-gp
-		$(PYTHON) gp.py -p $(PROJECTNAME) -l --since release  --manifest $(MF)  > t.out
+		$(L) $(PYTHON) gp.py -p $(PROJECTNAME) -l --since release  --manifest $(MF)  > t.out
 		cat t.out
 
+verify-repo: install-gp
+	@echo TODO
+	@$(L) $(PYTHON) gp.py -p $(PROJECTNAME) --verify repo -r $(RNAME)
+
+
 verify: install-gp
-	$(PYTHON) gp.py -p $(PROJECTNAME) --verify release
+	@$(L) $(PYTHON) gp.py -p $(PROJECTNAME) --verify release
 
 archive-release: install-gp
-	$(PYTHON) gp.py -p $(PROJECTNAME) -a
+	@$(PYTHON) gp.py -p $(PROJECTNAME) -a
 
 tag-release: install-gp
 	$(PYTHON) gp.py -p $(PROJECTNAME) --tag-release

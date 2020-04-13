@@ -223,6 +223,19 @@ class GProject:
         self.next_tag = self.prefix + self.release
         #self.last_tag = "%s%s" % ( self.prefix, self.last_release)
         self.last_tag = self.prefix + self.last_release
+        self.set_last_release_tag()
+
+    def set_last_release_tag(self):
+
+        t = None
+        for r in self.repo_list:
+            if r.is_primary:
+                t = r.last_tag()
+                log.debug(f"last={t} ")
+        if t:
+            self.last_tag = t
+        else:
+            print("no last tag")
 
     def set_last_release_info(self):
         # get primary
@@ -237,6 +250,7 @@ class GProject:
                 log.debug("tag=%s  info=%s" % ( t, info ))
                 self.last_release_date = info['date']
                 self.last_release_commit = info['hash']
+
                 return
 
     def show(self, since=None, format='all'):
@@ -277,10 +291,10 @@ class GProject:
                 st = 'T'
             print( "{:1s} {:<12s}: {} ".format(st, r.name, r.dir))
             r.list_commits()
+            ###log.critical(f"TESTING {nr}) {r.name} ")
 
         if nr == 0:
             print("    -NONE- ")
-
 
         if self.wiki_page_url:
             wp = self.wiki_page_url
@@ -446,9 +460,9 @@ class GProject:
             if len(ufiles) > 0:
                 if r.is_primary or r.tracking:
                     #errors.append( str(len(ufiles)) + " uncommitted files in repo " + r.name)
-                    errors.append( "{} uncommitted files in repo {}".format( len(ufiles), r.name) )
+                    errors.append( "{} uncommitted files in required repo {}".format( len(ufiles), r.name) )
                 else:
-                    log.warn("{} uncommitted files in repo {}".format( len(ufiles), r.name) )
+                    log.warn("{} uncommitted files in related repo {}".format( len(ufiles), r.name) )
 
         self.repo_log(since='push')
         for r in self.repo_list:
@@ -456,9 +470,9 @@ class GProject:
             if len(r.commits) > 0:
                 if r.is_primary or r.tracking:
                     #errors.append( str(len(r.commits)) + " commits not pushed to remote in repo " + r.name)
-                    errors.append( "{} commits not pushed to remote in repo {} \n commits: {}".format(len(r.commits), r.name, r.commits)  )
+                    errors.append( "{} commits not pushed to remote in required repo {} \n commits: {}".format(len(r.commits), r.name, r.commits)  )
                 else:
-                    log.warn( "{} commits not pushed to remote in repo {} \n commits: {}".format(len(r.commits), r.name, r.commits)  )
+                    log.warn( "{} commits not pushed to remote in related repo {} \n commits: {}".format(len(r.commits), r.name, r.commits)  )
 
         self.lookup_tags()
         for r in self.repo_list:
@@ -474,7 +488,7 @@ class GProject:
         if errors:
             #print( "....not ready: " + "\n".join(errors))
             #log.info( "info not ready: " + "\n".join(errors))
-            log.warn( "not ready: " + "\n".join(errors))
+            log.warn( "not ready: \n* " + "\n* ".join(errors))
             return
 
         return 1
