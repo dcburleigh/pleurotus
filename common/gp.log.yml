@@ -28,14 +28,9 @@ handlers:
     mode: 'a'
     formatter: err
     filename: 'err.log'
-    ###propagate: yes 
+    ###propagate: yes
 loggers:
   '|':
     level: DEBUG
     handlers: [console,file, err]
     #propagate: yes
-root:
-  level: DEBUG
-  # ??? creates duplicate messages 
-  #handlers: [console,file]
-  #handlers: [err]
