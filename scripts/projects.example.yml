@@ -16,3 +16,6 @@ projects:
         - name: another_project
           primary: 1
           release_path: scripts
+        - name: common_stuff 
+          tracking: 1 
+          

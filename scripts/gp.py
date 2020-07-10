@@ -110,7 +110,7 @@ def show_log(project_name, since=None, summary=True ):
 #  increment_release
 #
 
-def tag_release(project_name):
+def tag_release(project_name=None):
     global plist
 
     plist.read()
@@ -119,6 +119,9 @@ def tag_release(project_name):
     if not gp:
         print("no such project")
         return
+
+    #gp.show()
+    #eturn
 
     # TODO: primary-only
     rv = gp.verify_release()
@@ -178,10 +181,12 @@ def show_status(project_name ):
         else:
             no += 1
         print( "[%s] %s: %s uncommitted files " % ( info, r.dir, len(ufiles) ))
+        for item in ufiles:
+            log.debug(f"u: {item} ")
+
         print( "  {}".format(r.describe()))
         print("    " + "\n    ".join(ufiles))
         log.info(f"{np} Primary, {nt} Tracking, {no} Other" )
-
 
 def show_tags(project_name ):
     global plist
@@ -211,7 +216,6 @@ def show_tags(project_name ):
             else:
                 st = ' '
             print( "   %s %10s) %s" % ( st, d, t) )
-
 
     print("\nTag -> repo")
     for t in gp.taglist:
@@ -287,6 +291,7 @@ def merge_release():
         elif r.tracking:
             info = 'T'
         print( "[%s] %s: %s uncommitted files " % ( info, r.dir, len(ufiles) ))
+
         print( "  {}".format(r.describe()))
         print("    " + "\n    ".join(ufiles))
 
@@ -414,8 +419,8 @@ def main():
     parser = argparse.ArgumentParser()
     #parser.add_argument("echo")
     parser.add_argument("-a","--archive", help="Action: archive commit log", action="store_true")
-    parser.add_argument( "--verify", help="Action: verify- specify release,  ")
-    parser.add_argument( "--tag_release", help="Action: git tag all repos in project ")
+    parser.add_argument( "--verify", help="Action: verify- specify release,  ", action="store_true")
+    parser.add_argument( "--tag-release", help="Action: git tag all repos in project ", action="store_true")
 
     parser.add_argument("-t","--show-tags", help="Action: list git tags", action="store_true")
     parser.add_argument("-i","--show-info", help="Action: list git tags", action="store_true")

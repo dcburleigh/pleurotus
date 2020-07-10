@@ -134,7 +134,12 @@ class ProjectList:
 
             for r in p['repos']:
                 log.debug("{} add repo={}".format(code,r['name']))
-                if 'name' in r:
+                
+                name = None
+                if 'path' in r:
+                    dir = os.path.join(self.repo_root, r['path'])
+
+                elif 'name' in r:
                     dir = os.path.join(self.repo_root, r['name'])
                 else:
                     raise Exception("no repo name")
@@ -142,7 +147,6 @@ class ProjectList:
                 if not r['name'] in self.repo_projects:
                     self.repo_projects[ r['name']] = []
                 self.repo_projects[ r['name']].append(gp.name)
-
 
                 if 'release_path' in r:
                     gp.rel_path = r['release_path']
@@ -156,8 +160,6 @@ class ProjectList:
                     gp.set_primary_repo(dir, r['name'])
                 else:
                     gp.add_repo(dir, tracking=tr)
-
-
 
             if 'wikipage' in p:
                 gp.set_wiki_pages( p['wikipage'])

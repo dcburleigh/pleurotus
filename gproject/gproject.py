@@ -40,13 +40,14 @@ class GProject:
     #wiki_url = None
     #archive_root = None
 
-    def __init__(self, name, code=None, repo=None, wiki=None):
+    def __init__(self, name, code=None, repo=None, wiki=None, item={}):
         self.verbose = False
         self.verbose = True
 
         self.name = name
 
         self.repo_dir = ''  # full path to primary repo
+        #self.repo_path = ''  # relative path primary repo
         # related
         self.repo_list = []
         self.project_tags = {}

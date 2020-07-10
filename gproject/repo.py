@@ -152,7 +152,8 @@ class Repo:
         # s = self.git_command_rows(status --porcelein=2 --branch )
         #
         #log.err("got here")
-        return self.git_command_rows('status --short --branch ')
+        return self.git_command_rows('status --short  ')
+        #return self.git_command_rows('status --short --branch ')
 
     def describe(self):
         d = self.git_command('describe --tags --long ')
