@@ -100,7 +100,7 @@ class Repo:
         if serr:
             # TODO: trap 'no names found'
 
-            log.error("git command error: {}".format(serr) )
+            log.error("git command error: {}\n in commands:{}".format(serr, clist) )
             #print("err:", serr)
             self.last_error = serr
             return
