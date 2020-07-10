@@ -15,7 +15,9 @@ L =
 -include makefile.conf
 
 # ................................................................
-
+ifeq ($(COMMONSOURCE),)
+COMMONSOURCE = $(REPOROOT)/muttley
+endif
 GPSOURCE = $(REPOROOT)/pleurotus
 
 DIRS = gproject common
@@ -48,11 +50,15 @@ $(GPFILES): %: $(GPSOURCE)/%
 
 update-gp: $(MF)
 	@rsync -a $(GPSOURCE)/gproject/ gproject/
-	@rsync -a $(GPSOURCE)/common/ common/
 
-update-files: update-gp $(GPFILES)
+common/__init__.py common/logger.py: common/%: $(COMMONSOURCE)/python/lib/common/%
+	cp $< $@
 
-install-gp: $(DIRS) update-gp $(GPSCRIPTS) $(GPFILES) $(CONFIG)
+update-common: common log.yml common/__init__.py common/logger.py
+
+update-files: update-gp $(GPFILES) update-common
+
+install-gp: $(DIRS) update-gp $(GPSCRIPTS) $(GPFILES) $(CONFIG) update-common 
 
 python-version:
 	@$(PYTHON) --version | grep 3.7

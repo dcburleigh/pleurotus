@@ -40,7 +40,7 @@ def init_logging_yaml(config_file):
     """initialize logging configuration via a dict specified from a YAML file """
     # https://docs.python.org/3/library/logging.config.html#logging-config-api
 
-    global log_root, log_file
+    global log_root, log_file, files 
     yaml=YAML(typ='safe')   # default, if not specfied, is 'rt' (round-trip)
     with open(config_file) as fh:
         text = fh.read()
