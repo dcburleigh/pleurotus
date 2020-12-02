@@ -114,6 +114,7 @@ class ProjectList:
                 log.error("no name in project {} ".format(p))
                 continue
 
+            # TODO: match case-insensitive 
             if project_name != None and project_name != p['name']:
                 # filter on project name
                 continue
@@ -130,7 +131,12 @@ class ProjectList:
 
             if not 'repos' in p:
                 log.error( p['name'] + " no repos")
-                continue
+                continue 
+            
+            if not p['repos']:
+                log.error(f"no repos in name={p['name']}")
+                continue 
+            log.debug(f"repos={p['repos']}  name={p['name']} ")
 
             for r in p['repos']:
                 log.debug("{} add repo={}".format(code,r['name']))
@@ -166,6 +172,8 @@ class ProjectList:
 
             self.projects[ gp.name] = gp
 
+        if project_name and not project_name in self.projects:
+            log.error(f"project {project_name} not found")
 
     def read_tsv(self,f=None):
         """ read the master list of Git Projects in TSV format"""

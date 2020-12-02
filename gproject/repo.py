@@ -189,7 +189,9 @@ class Repo:
 
     def last_tag(self):
         self.get_tags()
-        t = sorted(self.tags.keys(), reverse=True)
+        t = sorted(self.tags.keys(), reverse=True) 
+        if not t:
+            return None 
         return t[0]
 
     def get_tags(self, all=False):

@@ -236,7 +236,7 @@ class GProject:
         if t:
             self.last_tag = t
         else:
-            print("no last tag")
+            log.info("no last tag")
 
     def set_last_release_info(self):
         # get primary
