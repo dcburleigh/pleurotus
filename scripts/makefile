@@ -2,10 +2,10 @@
 REPOROOT =
 ETC = /usr/local/etc/deldev
 
-PYTHON=/usr/local/bin/python3
-PIP=/usr/local/bin/pip3
-
-PYDOC = $(PYTHON) -m pydoc
+PYTHON=python
+PIP=pip
+#PYDOC = $(PYTHON) -m pydoc
+PYDOC = pydoc 
 
 #SHELL=/bin/bash
 
@@ -68,6 +68,9 @@ setup-python: requirements.txt  python-version
 
 # ................................................................
 
+open-dirs:  install-gp 
+	@$(L) $(PYTHON)  gp.py  --list 
+
 list-versions: install-gp
 	@$(L) $(PYTHON) gp.py --list -v
 
@@ -107,7 +110,7 @@ verify-repo: install-gp
 
 
 verify: install-gp
-	@$(L) $(PYTHON) gp.py -p $(PROJECTNAME) --verify release
+	@$(L) $(PYTHON) gp.py -p $(PROJECTNAME) --verify release 
 
 archive-release: install-gp
 	@$(PYTHON) gp.py -p $(PROJECTNAME) -a

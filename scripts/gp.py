@@ -166,10 +166,12 @@ def show_status(project_name ):
         log.info("no such project")
         return
 
+    ntot = 0 
     np = 0
     nt = 0
     no = 0
     for r in gp.repo_list:
+        ntot += 1 
         ufiles = r.get_status()
         info = ' '
         if r.is_primary:
@@ -186,7 +188,7 @@ def show_status(project_name ):
 
         print( "  {}".format(r.describe()))
         print("    " + "\n    ".join(ufiles))
-        log.info(f"{np} Primary, {nt} Tracking, {no} Other" )
+    log.info(f"{np} Primary, {nt} Tracking, {no} Other; {ntot} total" )
 
 def show_tags(project_name ):
     global plist
@@ -389,6 +391,14 @@ def show_repo_projects( repo_name):
     print( "%d projects contain %s" % ( len(repo_projects), repo_name ))
 
 
+def open_directory_windows():
+    global plist 
+
+    for name in plist.projects:
+        gp = plist.get_project(name)
+        print("%-20s:  %s " % ( name,  gp.current_release() )) 
+        cmd = 'open ' + gp.repo_dir 
+
 def list_all(format='full'):
     global plist
 
@@ -418,8 +428,12 @@ def main():
 
     parser = argparse.ArgumentParser()
     #parser.add_argument("echo")
+    #
+    # actions
+    #
     parser.add_argument("-a","--archive", help="Action: archive commit log", action="store_true")
-    parser.add_argument( "--verify", help="Action: verify- specify release,  ", action="store_true")
+#    parser.add_argument( "--verify", help="Action: verify- specify release,  ", action="store_true")
+    parser.add_argument( "--verify", help="Action: verify- specify release, ")
     parser.add_argument( "--tag-release", help="Action: git tag all repos in project ", action="store_true")
 
     parser.add_argument("-t","--show-tags", help="Action: list git tags", action="store_true")
@@ -429,8 +443,15 @@ def main():
     parser.add_argument("-v","--list-versions", help="Action: list release version for all projects in manifest", action="store_true")
     parser.add_argument( "--list", help="Action: list all projects ", action="store_true")
 
+    #
+    # parameters 
+    #
     parser.add_argument("-p", "--project", help="Project name ")
     parser.add_argument("-r", "--repo", help="Repo name ")
+
+    #
+    # options
+    #
     parser.add_argument("-m", "--manifest", help="Manifest file ")
     parser.add_argument( "--since", help="since option: master, push, release ")
     parser.add_argument("-f","--force", help="force update", action="store_true")
@@ -586,6 +607,8 @@ def main1():
         verify_release(project_name)
     elif action == 'tag-release':
         tag_release(project_name)
+    elif action == 'open-term':
+        open_directory_windows()
     else:
         print("ERROR: invalid action: %s" % ( action ) )
 

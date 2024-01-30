@@ -15,7 +15,7 @@ projects:
     repos:
         - name: another_project
           primary: 1
-          release_path: scripts
+          release_path: path/to/releasefile
         - name: common_stuff 
           tracking: 1 
           
