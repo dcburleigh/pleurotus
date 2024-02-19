@@ -32,6 +32,9 @@ from .gproject import GProject
 from .repo import Repo
 
 class ProjectList:
+    #
+    # class variables
+    #
     pfile = 'projects.tsv'
     projects = {}
     repo_root = None

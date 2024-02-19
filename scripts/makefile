@@ -66,6 +66,13 @@ python-version:
 setup-python: requirements.txt  python-version
 	$(PIP) install -r requirements.txt
 
+
+# ................................................................
+
+ex1: update-files  example.py 
+	python example.py 
+
+
 # ................................................................
 
 open-dirs:  install-gp 
