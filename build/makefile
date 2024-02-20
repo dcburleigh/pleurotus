@@ -12,6 +12,9 @@ PYDOC = pydoc
 L =
 #L = LOG_CONFIG=gp_log.yml
 
+MIN_PYTHON_VERSION = 3.9 
+
+
 -include makefile.conf
 
 # ................................................................
@@ -37,13 +40,18 @@ CONFIG = $(MF) log.yml
 $(MF): %: $(ETC)/%
 	cp $< $@
 
+BFILES = makefile requirements.txt 
+
+$(BFILES): %: $(GPSOURCE)/build/% 
+	cp $< $@ 
+
 # main script
-GPSCRIPTS = gp.py makefile  example.py projects.example.yml
+GPSCRIPTS = gp.py   example.py projects.example.yml
 
 $(GPSCRIPTS): %: $(GPSOURCE)/scripts/%
 	cp $< $@
 
-GPFILES = LICENSE requirements.txt  NEXTRELEASE.md
+GPFILES = LICENSE  NEXTRELEASE.md
 
 $(GPFILES): %: $(GPSOURCE)/%
 	cp $< $@
@@ -61,7 +69,7 @@ update-files: update-gp $(GPFILES) update-common
 install-gp: $(DIRS) update-gp $(GPSCRIPTS) $(GPFILES) $(CONFIG) update-common 
 
 python-version:
-	@$(PYTHON) --version | grep 3.7
+	@$(PYTHON) --version | grep $(MIN_PYTHON_VERSION)
 
 setup-python: requirements.txt  python-version
 	$(PIP) install -r requirements.txt
